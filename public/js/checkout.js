@@ -1,4 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
+    if (!window.sweetbox) {
+        console.error('SweetBox core script not loaded.');
+        return;
+    }
 
     const cartItemsContainer = document.getElementById('cart-items-container');
     const emptyCartMessage = document.getElementById('empty-cart-message');
@@ -28,17 +32,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const cart = window.sweetbox.getCart();
         cartItemsContainer.innerHTML = '';
+        const suggestedContainer = document.getElementById('suggested-products');
 
         if (cart.length === 0) {
             emptyCartMessage.classList.remove('hidden');
             orderSummary.classList.add('hidden');
-            document.getElementById('suggested-products').style.display = 'none';
+            if(suggestedContainer) suggestedContainer.style.display = 'none';
             return;
         }
 
         emptyCartMessage.classList.add('hidden');
         orderSummary.classList.remove('hidden');
-        document.getElementById('suggested-products').style.display = 'block';
+        if(suggestedContainer) suggestedContainer.style.display = 'block';
         
         let subtotal = 0;
 
@@ -47,21 +52,21 @@ document.addEventListener('DOMContentLoaded', () => {
             if (product) {
                 subtotal += product.price * item.quantity;
                 const cartItemElement = document.createElement('div');
-                cartItemElement.className = 'cart-item';
+                cartItemElement.className = 'flex gap-4 mb-4 pb-4 border-b border-gray-200';
                 cartItemElement.innerHTML = `
-                    <img src="${product.image}" alt="${product.name}" loading="lazy">
-                    <div class="item-info">
-                        <h4>${product.name}</h4>
-                        <p class="item-price">Rp ${product.price.toLocaleString('id-ID')}</p>
-                        <div class="item-controls">
-                            <div class="quantity-control">
-                                <button class="quantity-decrease" data-id="${item.id}">-</button>
-                                <span>${item.quantity}</span>
-                                <button class="quantity-increase" data-id="${item.id}">+</button>
+                    <img src="${product.image}" alt="${product.name}" loading="lazy" class="w-24 h-24 object-cover rounded-md">
+                    <div class="flex-grow">
+                        <h4 class="font-semibold text-gray-800">${product.name}</h4>
+                        <p class="text-purple-600 font-semibold">Rp ${product.price.toLocaleString('id-ID')}</p>
+                        <div class="flex items-center mt-2">
+                            <div class="flex items-center border border-gray-300 rounded-md">
+                                <button class="quantity-decrease w-8 h-8 text-lg text-gray-600 hover:bg-gray-100" data-id="${item.id}">-</button>
+                                <span class="px-4 text-gray-800">${item.quantity}</span>
+                                <button class="quantity-increase w-8 h-8 text-lg text-gray-600 hover:bg-gray-100" data-id="${item.id}">+</button>
                             </div>
                         </div>
                     </div>
-                    <button class="remove-item-btn" data-id="${item.id}" aria-label="Remove item">&times;</button>
+                    <button class="remove-item-btn text-red-500 hover:text-red-700 text-2xl font-bold" data-id="${item.id}" aria-label="Remove item">&times;</button>
                 `;
                 cartItemsContainer.appendChild(cartItemElement);
             }
@@ -73,7 +78,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const updateSummary = () => {
-        const deliveryOption = document.querySelector('input[name="delivery"]:checked').value;
+        const deliveryOptionEl = document.querySelector('input[name="delivery"]:checked');
+        if (!deliveryOptionEl) return;
+        
+        const deliveryOption = deliveryOptionEl.value;
         let shippingCost = 0;
         
         if (deliveryOption === 'delivery' && userLocation) {
@@ -105,21 +113,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const suggestions = all.filter(p => !cartIds.includes(p.id)).sort(() => 0.5 - Math.random()).slice(0, 4);
         
         suggestedGrid.innerHTML = suggestions.map(p => `
-            <a href="#" class="suggested-item add-to-cart-btn" data-id="${p.id}">
-                <img src="${p.image}" alt="${p.name}" loading="lazy">
-                <h5>${p.name}</h5>
+            <a href="#" class="add-to-cart-btn text-center block" data-id="${p.id}">
+                <img src="${p.image}" alt="${p.name}" loading="lazy" class="w-full h-24 object-cover rounded-md mb-2">
+                <h5 class="text-sm font-medium text-gray-700">${p.name}</h5>
             </a>
         `).join('');
     };
 
     const showConfirmModal = (id) => {
         itemToRemoveId = id;
-        confirmModal.classList.remove('hidden');
+        if(confirmModal) confirmModal.classList.remove('hidden');
     };
 
     const hideConfirmModal = () => {
         itemToRemoveId = null;
-        confirmModal.classList.add('hidden');
+        if(confirmModal) confirmModal.classList.add('hidden');
     };
     
     const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -134,17 +142,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event Listeners
     if (cartItemsContainer) {
         cartItemsContainer.addEventListener('click', (e) => {
-            const id = parseInt(e.target.dataset.id, 10);
-            if (e.target.classList.contains('quantity-increase')) {
-                const item = window.sweetbox.getCart().find(i => i.id === id);
-                window.sweetbox.updateQuantity(id, item.quantity + 1);
+            const target = e.target;
+            const id = parseInt(target.dataset.id, 10);
+            const item = window.sweetbox.getCart().find(i => i.id === id);
+
+            if (target.classList.contains('quantity-increase')) {
+                if(item) window.sweetbox.updateQuantity(id, item.quantity + 1);
             }
-            if (e.target.classList.contains('quantity-decrease')) {
-                const item = window.sweetbox.getCart().find(i => i.id === id);
-                window.sweetbox.updateQuantity(id, item.quantity - 1);
+            if (target.classList.contains('quantity-decrease')) {
+                if(item) window.sweetbox.updateQuantity(id, item.quantity - 1);
             }
-            if (e.target.classList.contains('remove-item-btn')) {
-                showConfirmModal(id);
+            if (target.closest('.remove-item-btn')) {
+                showConfirmModal(parseInt(target.closest('.remove-item-btn').dataset.id, 10));
             }
         });
     }
@@ -152,12 +161,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const suggestedProductsContainer = document.getElementById('suggested-products');
     if (suggestedProductsContainer) {
         suggestedProductsContainer.addEventListener('click', (e) => {
-            const suggestedItem = e.target.closest('.suggested-item.add-to-cart-btn');
+            const suggestedItem = e.target.closest('.add-to-cart-btn');
             if (suggestedItem) {
                 e.preventDefault();
                 const id = parseInt(suggestedItem.dataset.id, 10);
                 window.sweetbox.addToCart(id);
-                renderCartItems(); // Panggil renderCartItems untuk update UI secara real-time
+                renderCartItems();
             }
         });
     }
@@ -172,7 +181,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(position => {
                 userLocation = { lat: position.coords.latitude, lon: position.coords.longitude };
-                // Reverse geocoding (optional, needs API)
                 addressInput.value = `Lat: ${userLocation.lat.toFixed(5)}, Lon: ${userLocation.lon.toFixed(5)}`;
                 updateSummary();
             }, () => {
@@ -206,32 +214,27 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const itemsHtml = cart.map(item => {
             const product = window.sweetbox.getProductDetails(item.id);
-            return `<div class="receipt-item"><span>${item.quantity}x ${product.name}</span><span>Rp ${(item.quantity * product.price).toLocaleString('id-ID')}</span></div>`;
+            return `<div class="flex justify-between"><span>${item.quantity}x ${product.name}</span><span>Rp ${(item.quantity * product.price).toLocaleString('id-ID')}</span></div>`;
         }).join('');
         document.getElementById('receipt-items').innerHTML = itemsHtml;
         
         document.getElementById('receipt-summary').innerHTML = document.querySelector('.summary-details').innerHTML;
         
-        successModal.classList.remove('hidden');
+        if(successModal) successModal.classList.remove('hidden');
     }
 
     if(closeReceiptBtn) closeReceiptBtn.addEventListener('click', () => {
-        successModal.classList.add('hidden');
-        renderCartItems(); // Re-render to show empty state
+        if(successModal) successModal.classList.add('hidden');
+        renderCartItems();
     });
     
     if(downloadReceiptBtn) downloadReceiptBtn.addEventListener('click', () => {
         const receiptContent = document.getElementById('receipt-content');
+        if(!receiptContent) return;
         
-        // Mengambil warna latar belakang dari variabel CSS untuk memastikan struk yang diunduh memiliki background
-        const bgColor = getComputedStyle(document.documentElement).getPropertyValue('--card-bg').trim() || '#ffffff';
-
-        // Opsi untuk html2canvas agar menggunakan warna background yang kita tentukan dan menambahkan padding
         const options = {
-            backgroundColor: bgColor,
+            backgroundColor: 'white',
             onclone: (document) => {
-                // Menambahkan padding pada elemen yang akan di-screenshot di dalam klonnya
-                // Ini memastikan tampilan di layar tidak berubah, tapi hasil unduhan rapi
                 const content = document.getElementById('receipt-content');
                 if (content) {
                     content.style.padding = '30px';
@@ -250,4 +253,3 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inisialisasi Halaman
     renderCartItems();
 });
-

@@ -250,3 +250,4 @@ const allProducts = [
         image: '/images/kue-gegicok.jpg'
     }
 ];
+

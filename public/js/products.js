@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!productGrid) return;
         
         const wishlist = window.sweetbox.getWishlist();
-        productGrid.innerHTML = ''; // Clear previous results
+        productGrid.innerHTML = '';
         
         if (productsToRender.length === 0) {
             noResults.classList.remove('hidden');
@@ -33,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
         productsToRender.forEach(product => {
             const isLiked = wishlist.includes(product.id);
             const productCard = document.createElement('div');
-            // Menerapkan kelas Tailwind untuk kartu produk
             productCard.className = 'bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col';
             
             productCard.innerHTML = `
@@ -81,11 +80,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const applyFiltersAndSort = () => {
         let processedProducts = [...products];
-        const searchTerm = searchBox.value.toLowerCase();
-        const selectedCity = cityFilter.value;
-        const min = parseFloat(minPrice.value) || 0;
-        const max = parseFloat(maxPrice.value) || Infinity;
-        const sortValue = sortFilter.value;
+        const searchTerm = searchBox ? searchBox.value.toLowerCase() : '';
+        const selectedCity = cityFilter ? cityFilter.value : 'all';
+        const min = minPrice ? (parseFloat(minPrice.value) || 0) : 0;
+        const max = maxPrice ? (parseFloat(maxPrice.value) || Infinity) : Infinity;
+        const sortValue = sortFilter ? sortFilter.value : 'default';
 
         if (searchTerm) {
             processedProducts = processedProducts.filter(p => p.name.toLowerCase().includes(searchTerm) || p.city.toLowerCase().includes(searchTerm));
@@ -166,3 +165,4 @@ document.addEventListener('DOMContentLoaded', () => {
     populateCityFilter();
     applyFiltersAndSort();
 });
+

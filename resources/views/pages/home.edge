@@ -1,59 +1,61 @@
 @component('layouts/app', { title: 'SweetBox - Pesan Dessert Khas Daerah' })
-  @slot('main')
-  <main>
-    <section id="hero" class="relative min-h-[80vh] flex items-center justify-center text-center text-white bg-cover bg-center" style="background-image: url('/images/hero-banner.jpg');">
-        <div class="absolute inset-0 bg-black/50 z-10"></div>
-        <div class="container relative z-20 px-4">
-            <h1 class="text-4xl md:text-6xl font-bold leading-tight font-display">Kelezatan Khas Daerah, Langsung ke Rumah Anda</h1>
-            <p class="mt-4 text-lg md:text-xl max-w-2xl mx-auto text-gray-200">Jelajahi ratusan dessert otentik dari seluruh nusantara. SweetBox mengantarkan kebahagiaan manis dalam setiap kotak.</p>
-            <a href="{{ route('products') }}" class="mt-8 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-full text-lg transition-transform transform hover:scale-105">Jelajahi Menu</a>
-        </div>
-    </section>
+@slot('main')
 
-    <section id="popular-menu" class="py-16 sm:py-24 relative overflow-hidden bg-slate-50">
-      <div class="container mx-auto px-4">
+<main>
+<section id="hero" class="relative min-h-[80vh] flex items-center justify-center text-center text-white bg-cover bg-center" style="background-image: url('/images/hero-banner.jpg');">
+<div class="absolute inset-0 bg-black/50 z-10"></div>
+<div class="container relative z-20 px-4">
+<h1 class="text-4xl md:text-6xl font-bold leading-tight font-display">Kelezatan Khas Daerah, Langsung ke Rumah Anda</h1>
+<p class="mt-4 text-lg md:text-xl max-w-2xl mx-auto text-gray-200">Jelajahi ratusan dessert otentik dari seluruh nusantara. SweetBox mengantarkan kebahagiaan manis dalam setiap kotak.</p>
+<a href="{{ route('products') }}" class="mt-8 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-full text-lg transition-transform transform hover:scale-105">Jelajahi Menu</a>
+</div>
+</section>
+
+<section id="popular-menu" class="py-16 sm:py-24 relative overflow-hidden bg-slate-50">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 font-display">Menu Terpopuler</h2>
+        <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">Pilihan favorit dengan rating bintang 4 ke atas yang paling sering dipesan.</p>
+    </div>
+  </div>
+
+  <div class="menu-slider-wrapper w-full inline-flex flex-nowrap [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]">
+      <div class="menu-slider flex items-center justify-center md:justify-start [&_a]:mx-4 animate-infinite-scroll">
+          {{-- Konten slider akan diisi oleh app.js --}}
+      </div>
+      <div class="menu-slider flex items-center justify-center md:justify-start [&_a]:mx-4 animate-infinite-scroll" aria-hidden="true">
+          {{-- Konten duplikat untuk animasi --}}
+      </div>
+  </div>
+</section>
+
+<section id="features" class="bg-purple-50 py-16 sm:py-24">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 font-display">Menu Terpopuler</h2>
-            <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">Pilihan favorit dengan rating bintang 4 ke atas yang paling sering dipesan.</p>
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 font-display">Kenapa Memilih SweetBox?</h2>
+            <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">Kami berkomitmen untuk memberikan pengalaman terbaik dalam setiap pesanan Anda.</p>
         </div>
-      </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div class="feature-item p-6">
+                <i class="fas fa-shield-alt text-4xl text-purple-600 mb-4"></i>
+                <h3 class="text-xl font-semibold mb-2">Kualitas Terjamin</h3>
+                <p class="text-gray-600">Setiap produk dikurasi dari pembuat dessert terbaik di daerahnya.</p>
+            </div>
+            <div class="feature-item p-6">
+                 <i class="fas fa-truck-fast text-4xl text-purple-600 mb-4"></i>
+                <h3 class="text-xl font-semibold mb-2">Pengiriman Cepat</h3>
+                <p class="text-gray-600">Pesanan Anda kami antarkan dengan cepat dan aman sampai ke tujuan.</p>
+            </div>
+            <div class="feature-item p-6">
+                <i class="fas fa-map-marked-alt text-4xl text-purple-600 mb-4"></i>
+                <h3 class="text-xl font-semibold mb-2">Jelajah Rasa Nusantara</h3>
+                <p class="text-gray-600">Temukan keunikan rasa dessert dari berbagai penjuru Indonesia.</p>
+            </div>
+        </div>
+    </div>
+</section>
 
-      <div class="w-full inline-flex flex-nowrap [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]">
-          <div class="menu-slider flex items-center justify-center md:justify-start [&_a]:mx-4 animate-infinite-scroll">
-              {{-- Konten slider akan diisi oleh home.js --}}
-          </div>
-          <div class="menu-slider flex items-center justify-center md:justify-start [&_a]:mx-4 animate-infinite-scroll" aria-hidden="true">
-              {{-- Konten duplikat untuk animasi --}}
-          </div>
-      </div>
-    </section>
-    
-    <section id="features" class="bg-purple-50 py-16 sm:py-24">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 font-display">Kenapa Memilih SweetBox?</h2>
-                <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">Kami berkomitmen untuk memberikan pengalaman terbaik dalam setiap pesanan Anda.</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-                <div class="feature-item p-6">
-                    <i class="fas fa-shield-alt text-4xl text-purple-600 mb-4"></i>
-                    <h3 class="text-xl font-semibold mb-2">Kualitas Terjamin</h3>
-                    <p class="text-gray-600">Setiap produk dikurasi dari pembuat dessert terbaik di daerahnya.</p>
-                </div>
-                <div class="feature-item p-6">
-                     <i class="fas fa-truck-fast text-4xl text-purple-600 mb-4"></i>
-                    <h3 class="text-xl font-semibold mb-2">Pengiriman Cepat</h3>
-                    <p class="text-gray-600">Pesanan Anda kami antarkan dengan cepat dan aman sampai ke tujuan.</p>
-                </div>
-                <div class="feature-item p-6">
-                    <i class="fas fa-map-marked-alt text-4xl text-purple-600 mb-4"></i>
-                    <h3 class="text-xl font-semibold mb-2">Jelajah Rasa Nusantara</h3>
-                    <p class="text-gray-600">Temukan keunikan rasa dessert dari berbagai penjuru Indonesia.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-  </main>
-  @endslot
+
+</main>
+@endslot
 @endcomponent
-
