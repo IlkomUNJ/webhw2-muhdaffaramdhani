@@ -18,28 +18,46 @@
     {{-- Tailwind CSS from CDN --}}
     <script src="https://cdn.tailwindcss.com"></script>
 
-    {{-- Select2 for Product Filters --}}
-    @if(await $slots.head())
-        {{{ await $slots.head() }}}
+    {{-- Select2 CSS for Product Filters --}}
+    @if(route.name === 'products')
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     @endif
 
     <style>
-        /* Custom styles can be added here if needed */
         body {
             font-family: 'Poppins', sans-serif;
         }
-        h1, h2, h3, .logo, .footer-logo {
+        h1, h2, h3, h4, .font-display {
             font-family: 'Playfair Display', serif;
+        }
+        /* Style untuk hamburger menu */
+        .hamburger-menu.open span:nth-child(1) {
+            transform: translateY(8px) rotate(45deg);
+        }
+        .hamburger-menu.open span:nth-child(2) {
+            opacity: 0;
+        }
+        .hamburger-menu.open span:nth-child(3) {
+            transform: translateY(-8px) rotate(-45deg);
+        }
+        .mobile-nav.open {
+            transform: translateX(0);
+        }
+        /* Style untuk radio button pembayaran */
+        .payment-methods input[type="radio"]:checked + span {
+            background-color: #8B5CF6; /* bg-purple-500 */
+            color: white;
+            border-color: #8B5CF6;
         }
     </style>
 
 </head>
 <body class="bg-slate-50 text-gray-800 flex flex-col min-h-screen">
 
-    <header class="bg-white/80 backdrop-blur-md shadow-md sticky top-0 z-50 transition-all duration-300">
+    <header class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50 transition-all duration-300">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center py-4">
-                <a href="{{ route('home') }}" class="logo text-3xl font-bold text-purple-600">SweetBox</a>
+                <a href="{{ route('home') }}" class="text-3xl font-bold text-purple-600 font-display">SweetBox</a>
                 <nav class="hidden md:flex items-center space-x-8">
                     <a href="{{ route('home') }}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">Home</a>
                     <a href="{{ route('products') }}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">Product</a>
@@ -48,7 +66,7 @@
                 <div class="flex items-center space-x-4">
                     <a href="{{ route('checkout') }}" class="cart-icon relative text-gray-700 hover:text-purple-600" aria-label="Shopping Cart">
                         <i class="fas fa-shopping-bag text-2xl"></i>
-                        <span class="cart-badge absolute -top-2 -right-2 bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold">0</span>
+                        <span class="cart-badge absolute -top-2 -right-2 bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold" style="display: none;">0</span>
                     </a>
                     <button class="hamburger-menu md:hidden flex flex-col justify-around w-6 h-5 bg-transparent border-none cursor-pointer p-0 z-20" id="hamburger-menu" aria-label="Open menu">
                         <span class="block w-full h-0.5 bg-gray-800 rounded-full transition-all duration-300"></span>
@@ -60,7 +78,7 @@
         </div>
     </header>
     
-    <nav class="mobile-nav fixed top-0 left-0 w-full h-full bg-white z-10 flex-col justify-center items-center transform translate-x-full transition-transform duration-300 md:hidden" id="mobile-nav">
+    <nav class="mobile-nav fixed top-0 left-0 w-full h-full bg-white z-10 flex flex-col justify-center items-center transform translate-x-full transition-transform duration-300 md:hidden" id="mobile-nav">
         <ul class="text-center">
             <li class="my-4"><a href="{{ route('home') }}" class="text-3xl font-semibold text-gray-800">Home</a></li>
             <li class="my-4"><a href="{{ route('products') }}" class="text-3xl font-semibold text-gray-800">Product</a></li>
@@ -70,14 +88,14 @@
     </nav>
 
     <main class="flex-grow">
-        @!section('content')
+      {{{ await $slots.main() }}}
     </main>
     
     <footer class="bg-white border-t border-gray-200 mt-16">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <div class="footer-col">
-                    <h4 class="footer-logo text-2xl font-bold text-purple-600 mb-4">SweetBox</h4>
+                    <h4 class="text-2xl font-bold text-purple-600 mb-4 font-display">SweetBox</h4>
                     <p class="text-gray-600">Membawa kelezatan dessert khas nusantara langsung ke depan pintu Anda. Kualitas dan rasa otentik adalah prioritas kami.</p>
                     <div class="social-links mt-6 flex space-x-4">
                         <a href="#" aria-label="Facebook" class="text-gray-500 hover:text-purple-600"><i class="fab fa-facebook-f text-xl"></i></a>
@@ -124,6 +142,8 @@
     @if(route.name === 'home')
         <script src="/js/home.js"></script>
     @elseif(route.name === 'products')
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
         <script src="/js/products.js"></script>
     @elseif(route.name === 'checkout')
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -131,4 +151,3 @@
     @endif
 </body>
 </html>
-

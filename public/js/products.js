@@ -1,4 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
+    if (!window.sweetbox) {
+        console.error('SweetBox core script not loaded.');
+        return;
+    }
+
     const products = window.sweetbox.getAllProducts();
 
     const productGrid = document.getElementById('product-grid');
@@ -16,34 +21,45 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!productGrid) return;
         
         const wishlist = window.sweetbox.getWishlist();
-        productGrid.innerHTML = '';
-        noResults.style.display = productsToRender.length === 0 ? 'block' : 'none';
+        productGrid.innerHTML = ''; // Clear previous results
+        
+        if (productsToRender.length === 0) {
+            noResults.classList.remove('hidden');
+            return;
+        }
+        
+        noResults.classList.add('hidden');
         
         productsToRender.forEach(product => {
             const isLiked = wishlist.includes(product.id);
             const productCard = document.createElement('div');
-            productCard.className = 'product-card';
+            // Menerapkan kelas Tailwind untuk kartu produk
+            productCard.className = 'bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col';
+            
             productCard.innerHTML = `
-                <button class="like-btn ${isLiked ? 'liked' : ''}" data-id="${product.id}" aria-label="Save to wishlist">
-                    <i class="${isLiked ? 'fas' : 'far'} fa-heart"></i>
-                </button>
-                <img src="${product.image}" alt="${product.name}" loading="lazy">
-                <div class="product-info">
-                    <h4>${product.name}</h4>
-                    <p class="product-city">${product.city}</p>
-                    <p class="product-calories">~${product.calories} Kalori</p>
-                    <div class="product-details">
+                <div class="relative">
+                    <button class="like-btn absolute top-3 right-3 bg-white/80 w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:text-red-500 transition-colors z-10" data-id="${product.id}" aria-label="Save to wishlist">
+                        <i class="${isLiked ? 'fas' : 'far'} fa-heart text-xl"></i>
+                    </button>
+                    <img src="${product.image}" alt="${product.name}" loading="lazy" class="w-full h-48 object-cover">
+                </div>
+                <div class="p-5 flex flex-col flex-grow">
+                    <h4 class="text-lg font-semibold text-gray-900 truncate">${product.name}</h4>
+                    <p class="text-sm text-gray-500">${product.city}</p>
+                    <p class="text-xs text-gray-500 mb-3 italic">~${product.calories} Kalori</p>
+                    <div class="mt-auto flex justify-between items-center">
                         <div>
-                            <p class="product-price">Rp ${product.price.toLocaleString('id-ID')}</p>
-                            <div class="product-rating">${'★'.repeat(product.rating)}${'☆'.repeat(5 - product.rating)}</div>
+                            <p class="text-lg font-bold text-purple-600">Rp ${product.price.toLocaleString('id-ID')}</p>
+                            <div class="text-yellow-400 text-sm">${'★'.repeat(product.rating)}${'☆'.repeat(5 - product.rating)}</div>
                         </div>
-                        <button class="add-to-cart-btn" data-id="${product.id}" aria-label="Add to cart">+</button>
+                        <button class="add-to-cart-btn bg-purple-600 text-white w-10 h-10 rounded-full text-2xl font-bold flex items-center justify-center transition-transform hover:scale-110 hover:bg-purple-700" data-id="${product.id}" aria-label="Add to cart">+</button>
                     </div>
                 </div>
             `;
             productGrid.appendChild(productCard);
         });
-        window.sweetbox.updateLikeButtons(); // Panggil setelah render
+
+        window.sweetbox.updateLikeButtons();
     };
 
     const populateCityFilter = () => {
@@ -55,8 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
             option.textContent = city;
             cityFilter.appendChild(option);
         });
-        // Initialize Select2
-        if (jQuery && jQuery.fn && jQuery.fn.select2) {
+        if (typeof jQuery !== 'undefined' && jQuery.fn.select2) {
             $('.city-select').select2({
                 placeholder: "Pilih Kota",
                 allowClear: true
@@ -72,7 +87,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const max = parseFloat(maxPrice.value) || Infinity;
         const sortValue = sortFilter.value;
 
-        // Filtering
         if (searchTerm) {
             processedProducts = processedProducts.filter(p => p.name.toLowerCase().includes(searchTerm) || p.city.toLowerCase().includes(searchTerm));
         }
@@ -84,7 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
              processedProducts = processedProducts.filter(p => p.rating >= selectedRating);
         }
         
-        // Sorting
         switch (sortValue) {
             case 'price-asc':
                 processedProducts.sort((a, b) => a.price - b.price);
@@ -98,11 +111,8 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'calories-desc':
                 processedProducts.sort((a, b) => b.calories - a.calories);
                 break;
-            case 'rating-asc':
-                processedProducts.sort((a, b) => a.rating - b.rating);
-                break;
             case 'rating-desc':
-                processedProducts.sort((a, b) => b.rating - a.rating);
+                processedProducts.sort((a, b) => b.rating - b.rating);
                 break;
         }
         
@@ -118,12 +128,15 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     // Event Listeners
-    [searchBox, minPrice, maxPrice, sortFilter].forEach(el => {
-        if (el) el.addEventListener('input', applyFiltersAndSort);
-    });
+    if(searchBox) searchBox.addEventListener('input', applyFiltersAndSort);
+    if(minPrice) minPrice.addEventListener('input', applyFiltersAndSort);
+    if(maxPrice) maxPrice.addEventListener('input', applyFiltersAndSort);
+    if(sortFilter) sortFilter.addEventListener('change', applyFiltersAndSort);
     
-    if(cityFilter && jQuery && jQuery.fn && jQuery.fn.select2) {
+    if (cityFilter && typeof jQuery !== 'undefined' && jQuery.fn.select2) {
         $(cityFilter).on('change', applyFiltersAndSort);
+    } else if (cityFilter) {
+        cityFilter.addEventListener('change', applyFiltersAndSort);
     }
 
     if (ratingFilter) {
@@ -133,7 +146,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 selectedRating = (selectedRating === rating) ? 0 : rating;
                 
                 ratingFilter.querySelectorAll('span').forEach(star => {
-                    star.classList.toggle('selected', parseInt(star.dataset.rating, 10) <= selectedRating);
+                    const starRating = parseInt(star.dataset.rating, 10);
+                    if (starRating <= selectedRating) {
+                        star.classList.add('text-yellow-400');
+                        star.classList.remove('text-gray-300');
+                    } else {
+                        star.classList.remove('text-yellow-400');
+                        star.classList.add('text-gray-300');
+                    }
                 });
                 
                 applyFiltersAndSort();
@@ -141,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Inisiasi
+    // Initialization
     handleInitialSearch();
     populateCityFilter();
     applyFiltersAndSort();
