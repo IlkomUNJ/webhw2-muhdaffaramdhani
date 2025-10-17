@@ -81,11 +81,32 @@ h1, h2, h3, h4, .font-display {
     text-align: center;
 }
 
-/* Animasi untuk popular products di homepage */
-.animate-infinite-scroll {
-    animation: infinite-scroll 40s linear infinite;
+/* 1. PERBAIKAN: Animasi untuk popular products di homepage (lebih lambat) */
+.animate-slow-scroll {
+    animation: infinite-scroll 80s linear infinite; /* Kecepatan 80s */
 }
+
 @keyframes infinite-scroll {
     from { transform: translateX(0); }
     to { transform: translateX(-100%); }
+}
+
+/* 1. PERBAIKAN: Pause on hover */
+.group-hover\.paused:hover {
+    animation-play-state: paused;
+}
+
+/* 4. PERBAIKAN: Hilangkan scroll di filter product */
+.filter-container-no-scroll {
+    overflow-y: hidden; /* Memastikan tidak ada scroll */
+}
+
+/* 5. PERBAIKAN: Tampilan keranjang kosong di tengah (default Edge template tidak di tengah) */
+#empty-cart-message-centered {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
 }

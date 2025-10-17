@@ -4,14 +4,15 @@
 <main class="pt-24 sm:pt-28">
 <section id="product-page" class="py-12">
 <div class="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-8">
-<aside class="w-full lg:w-1/4 lg:sticky top-28 self-start h-auto bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+<aside class="w-full lg:w-1/4 lg:sticky top-28 self-start h-auto bg-white p-6 rounded-2xl shadow-lg border border-gray-200 filter-container-no-scroll">
 <div class="filter-group mb-6">
-<h3 class="text-lg font-semibold mb-2 text-purple-700">Filter Produk</h3>
-<input type="text" id="search-box" placeholder="Cari dessert..." class="w-full p-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+<h3 class="text-lg font-bold mb-3 text-purple-700 border-b pb-2 border-purple-100">Cari</h3>
+<input type="text" id="search-box" placeholder="Cari dessert..." class="w-full p-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition duration-150">
 </div>
+
 <div class="filter-group mb-6">
-<h3 class="text-lg font-semibold mb-2 text-purple-700">Urutkan</h3>
-<select id="sort-filter" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+<h3 class="text-lg font-bold mb-3 text-purple-700 border-b pb-2 border-purple-100">Urutkan</h3>
+<select id="sort-filter" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition duration-150">
 <option value="default">Default</option>
 <option value="price-asc">Harga Terendah</option>
 <option value="price-desc">Harga Tertinggi</option>
@@ -20,35 +21,39 @@
 <option value="rating-desc">Bintang Tertinggi</option>
 </select>
 </div>
+
+{{-- 3. TAMBAHAN: Filter dari Wishlist --}}
 <div class="filter-group mb-6">
-<h3 class="text-lg font-semibold mb-2 text-purple-700">Tampilkan</h3>
-<button id="wishlist-filter" class="w-full text-left p-2 border border-gray-300 rounded-lg flex items-center justify-between">
-<span>Produk Wishlist</span>
-<i class="far fa-heart"></i>
+<h3 class="text-lg font-bold mb-3 text-purple-700 border-b pb-2 border-purple-100">Wishlist</h3>
+<button id="wishlist-filter-btn" data-is-active="false" class="w-full text-left p-3 border-2 border-gray-300 rounded-xl flex items-center justify-between font-semibold text-gray-700 hover:bg-purple-50 transition-all duration-200">
+<span>Tampilkan Wishlist Saja</span>
+<i class="far fa-heart text-xl"></i>
 </button>
 </div>
+
 <div class="filter-group mb-6">
-<h3 class="text-lg font-semibold mb-2 text-purple-700">Kota</h3>
-<select id="city-filter" class="city-select w-full">
+<h3 class="text-lg font-bold mb-3 text-purple-700 border-b pb-2 border-purple-100">Kota</h3>
+<select id="city-filter" class="city-select w-full p-2">
 <option value="all">Semua Kota</option>
 </select>
 </div>
+
 <div class="filter-group mb-6">
-<h3 class="text-lg font-semibold mb-2 text-purple-700">Range Harga (Rp)</h3>
-<div class="price-range flex items-center gap-2">
-<input type="number" id="min-price" placeholder="Min" min="0" class="w-full p-2 border border-gray-300 rounded-lg">
-<span>-</span>
-<input type="number" id="max-price" placeholder="Maks" min="0" class="w-full p-2 border border-gray-300 rounded-lg">
+<h3 class="text-lg font-bold mb-3 text-purple-700 border-b pb-2 border-purple-100">Range Harga (Rp)</h3>
+<div class="price-range space-y-3">
+<input type="number" id="min-price" placeholder="Harga Minimum" min="0" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition duration-150">
+<input type="number" id="max-price" placeholder="Harga Maksimum" min="0" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition duration-150">
 </div>
 </div>
+
 <div class="filter-group">
-<h3 class="text-lg font-semibold mb-2 text-purple-700">Rating</h3>
+<h3 class="text-lg font-bold mb-3 text-purple-700 border-b pb-2 border-purple-100">Minimum Rating</h3>
 <div class="rating-filter flex text-3xl cursor-pointer text-gray-300" id="rating-filter">
-<span data-rating="1">★</span>
-<span data-rating="2">★</span>
-<span data-rating="3">★</span>
-<span data-rating="4">★</span>
-<span data-rating="5">★</span>
+<span data-rating="1" class="hover:text-yellow-400 transition-colors">★</span>
+<span data-rating="2" class="hover:text-yellow-400 transition-colors">★</span>
+<span data-rating="3" class="hover:text-yellow-400 transition-colors">★</span>
+<span data-rating="4" class="hover:text-yellow-400 transition-colors">★</span>
+<span data-rating="5" class="hover:text-yellow-400 transition-colors">★</span>
 </div>
 </div>
 </aside>

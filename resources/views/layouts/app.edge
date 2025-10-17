@@ -41,10 +41,25 @@
                 <a href="{{ route('about') }}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">About</a>
             </nav>
             <div class="flex items-center space-x-4">
+                {{-- Admin Dashboard Link (Tampil hanya jika is_admin true) --}}
+                <a href="{{ route('admin') }}" id="admin-link-desktop" class="hidden text-gray-700 hover:text-red-500" aria-label="Admin Dashboard">
+                    <i class="fas fa-user-shield text-2xl"></i>
+                </a>
+                
+                {{-- Cart Icon --}}
                 <a href="{{ route('checkout') }}" class="cart-icon relative text-gray-700 hover:text-purple-600" aria-label="Shopping Cart">
                     <i class="fas fa-shopping-bag text-2xl"></i>
                     <span class="cart-badge absolute -top-2 -right-2 bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold" style="display: none;">0</span>
                 </a>
+                
+                {{-- Auth Buttons (Desktop) --}}
+                <div id="auth-buttons-desktop" class="hidden md:flex items-center space-x-4">
+                    <a href="{{ route('login') }}" id="login-button" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">Login</a>
+                    <a href="{{ route('register') }}" id="register-button" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-full transition-colors">Register</a>
+                    <button id="logout-button" class="hidden text-gray-700 hover:text-red-500 font-medium transition-colors" onclick="window.sweetbox.logout()">Logout</button>
+                    <span id="user-info" class="hidden text-sm font-medium text-purple-600"></span>
+                </div>
+                
                 <button class="hamburger-menu md:hidden flex flex-col justify-around w-6 h-5 bg-transparent border-none cursor-pointer p-0 z-20" id="hamburger-menu" aria-label="Open menu">
                     <span class="block w-full h-0.5 bg-gray-800 rounded-full transition-all duration-300"></span>
                     <span class="block w-full h-0.5 bg-gray-800 rounded-full transition-all duration-300"></span>
@@ -61,6 +76,15 @@
         <li class="my-4"><a href="{{ route('products') }}" class="text-3xl font-semibold text-gray-800">Product</a></li>
         <li class="my-4"><a href="{{ route('about') }}" class="text-3xl font-semibold text-gray-800">About</a></li>
         <li class="my-4"><a href="{{ route('checkout') }}" class="text-3xl font-semibold text-gray-800">Shopping Cart</a></li>
+        <li id="mobile-admin-link" class="my-4 hidden"><a href="{{ route('admin') }}" class="text-3xl font-semibold text-red-500">Admin Dashboard</a></li>
+        
+        {{-- Auth Buttons (Mobile) --}}
+        <div id="auth-buttons-mobile" class="mt-8 pt-4 border-t border-gray-200">
+             <span id="user-info-mobile" class="hidden text-xl font-medium text-purple-600 block mb-4"></span>
+             <li class="my-4"><a href="{{ route('login') }}" id="login-button-mobile" class="text-3xl font-semibold text-gray-800">Login</a></li>
+             <li class="my-4"><a href="{{ route('register') }}" id="register-button-mobile" class="text-3xl font-semibold text-purple-600">Register</a></li>
+             <li class="my-4 hidden" id="logout-button-mobile"><button onclick="window.sweetbox.logout()" class="text-3xl font-semibold text-red-500">Logout</button></li>
+        </div>
     </ul>
 </nav>
 
@@ -115,7 +139,7 @@
 <div id="notification" class="notification fixed bottom-5 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-lg z-50 opacity-0 transition-all duration-300"></div>
 
 {{-- External JS libs --}}
-@if(route.name === 'products' || route.name === 'checkout')
+@if(route.name === 'products' || route.name === 'checkout' || route.name === 'admin')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 @endif
 @if(route.name === 'products')

@@ -1,0 +1,18 @@
+@component('layouts/app', { title: 'Dashboard Pembeli - SweetBox' })
+@slot('main')
+
+<main class="container mx-auto px-4 py-12 pt-32 sm:pt-40">
+<div class="bg-white p-8 rounded-2xl shadow-sm">
+<h1 class="text-3xl font-bold font-display text-gray-900">Dashboard Pembeli</h1>
+<p class="mt-2 text-lg text-gray-600">Selamat datang, {{ auth.user.username }}!</p>
+
+<div class="mt-8">
+  <h2 class="text-xl font-semibold">Riwayat Pesanan Anda</h2>
+  <p class="mt-4 text-gray-500">Fitur ini sedang dalam pengembangan.</p>
+</div>
+
+
+</div>
+</main>
+@endslot
+@endcomponent

@@ -19,11 +19,13 @@
     </div>
   </div>
 
-  <div class="menu-slider-wrapper w-full inline-flex flex-nowrap [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]">
-      <div class="menu-slider flex items-center justify-center md:justify-start [&_a]:mx-4 animate-infinite-scroll">
+  {{-- Mengubah kecepatan animasi menjadi 80s (lebih lambat) dan menambahkan class untuk hover --}}
+  <div class="menu-slider-wrapper w-full inline-flex flex-nowrap [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)] group">
+      {{-- Class animasi diganti menjadi 'animate-slow-scroll' di app.css --}}
+      <div class="menu-slider flex items-center justify-center md:justify-start [&_a]:mx-4 animate-slow-scroll group-hover:paused">
           {{-- Konten slider akan diisi oleh app.js --}}
       </div>
-      <div class="menu-slider flex items-center justify-center md:justify-start [&_a]:mx-4 animate-infinite-scroll" aria-hidden="true">
+      <div class="menu-slider flex items-center justify-center md:justify-start [&_a]:mx-4 animate-slow-scroll group-hover:paused" aria-hidden="true">
           {{-- Konten duplikat untuk animasi --}}
       </div>
   </div>

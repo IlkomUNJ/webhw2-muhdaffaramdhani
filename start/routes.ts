@@ -1,8 +1,15 @@
 import router from '@adonisjs/core/services/router'
-const PagesController = () => import('#controllers/pages_controller')
+const ViewController = () => import('#controllers/view_controller') // Menggunakan ViewController baru
 
-// Rute untuk halaman-halaman utama
-router.get('/', [PagesController, 'home']).as('home')
-router.get('/products', [PagesController, 'products']).as('products')
-router.get('/about', [PagesController, 'about']).as('about')
-router.get('/checkout', [PagesController, 'checkout']).as('checkout')
+// Rute untuk halaman-halaman umum
+router.get('/', [ViewController, 'home']).as('home')
+router.get('/products', [ViewController, 'products']).as('products')
+router.get('/about', [ViewController, 'about']).as('about')
+router.get('/checkout', [ViewController, 'checkout']).as('checkout')
+
+// Rute untuk Authentication (Simulasi)
+router.get('/login', [ViewController, 'login']).as('login')
+router.get('/register', [ViewController, 'register']).as('register')
+
+// Rute untuk Admin (Simulasi)
+router.get('/admin', [ViewController, 'admin']).as('admin')
