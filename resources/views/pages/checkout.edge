@@ -1,0 +1,133 @@
+@component('layouts/app', { title: 'Checkout - SweetBox' })
+  @slot('main')
+  <main class="pt-24 sm:pt-28">
+      <section id="checkout-page" class="py-12">
+          <div class="container mx-auto px-4">
+              <h2 class="text-3xl md:text-4xl font-bold text-gray-900 font-display mb-8">Keranjang Belanja Anda</h2>
+              <div class="checkout-layout flex flex-col lg:flex-row gap-8 items-start">
+                  <div class="cart-items w-full lg:w-2/3">
+                      <div id="cart-items-container">
+                          {{-- Item keranjang akan dirender di sini oleh checkout.js --}}
+                      </div>
+                      <div id="empty-cart-message" class="hidden text-center py-16 px-6 bg-white border-2 border-dashed border-gray-300 rounded-2xl">
+                          <h3 class="text-2xl font-semibold text-gray-800">Keranjang Anda masih kosong.</h3>
+                          <p class="text-gray-600 mt-2">Ayo temukan dessert favoritmu!</p>
+                          <a href="{{ route('products') }}" class="mt-6 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-full transition-transform transform hover:scale-105">Mulai Belanja</a>
+                      </div>
+                       <div id="suggested-products" class="suggested-products mt-8 pt-6 border-t border-gray-200">
+                          <h3 class="text-xl font-semibold mb-4">Mungkin Anda juga Suka</h3>
+                          <div class="suggested-grid grid grid-cols-2 sm:grid-cols-4 gap-4" id="suggested-grid">
+                              {{-- Suggested products rendered here --}}
+                          </div>
+                      </div>
+                  </div>
+
+                  <div class="order-summary hidden w-full lg:w-1/3 bg-white p-6 rounded-2xl shadow-sm border border-gray-200 lg:sticky top-28" id="order-summary">
+                      <h3 class="text-2xl font-bold font-display mb-6">Ringkasan Pesanan</h3>
+                      
+                      <form id="checkout-form">
+                           <div class="form-group mb-4">
+                              <label for="address" class="block mb-2 font-medium">Alamat Lengkap</label>
+                              <textarea id="address" rows="3" required placeholder="Masukkan alamat Anda" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"></textarea>
+                              <button type="button" id="use-gps-btn" class="text-sm text-purple-600 hover:underline mt-2 flex items-center gap-1">
+                                  <i class="fas fa-map-marker-alt"></i>
+                                  Gunakan Lokasi Saat Ini
+                              </button>
+                              <div id="distance-info" class="text-sm mt-2 text-gray-500"></div>
+                          </div>
+
+                          <div class="delivery-options mb-6">
+                              <h4 class="font-medium mb-2">Opsi Pengiriman</h4>
+                              <div class="flex gap-4">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="delivery" value="delivery" checked class="h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500">
+                                    <i class="fas fa-truck"></i> <span>Delivery</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="delivery" value="pickup" class="h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500">
+                                    <i class="fas fa-store"></i> <span>Pick Up</span>
+                                </label>
+                              </div>
+                          </div>
+                          
+                          <div class="summary-details space-y-2 mb-4">
+                              <p class="flex justify-between"><span>Subtotal</span> <span id="summary-subtotal">Rp 0</span></p>
+                              <p class="flex justify-between"><span>Biaya Pengiriman</span> <span id="summary-shipping">Rp 0</span></p>
+                              <p class="flex justify-between"><span>Pajak (11%)</span> <span id="summary-tax">Rp 0</span></p>
+                              <hr class="my-2">
+                              <p class="summary-total flex justify-between font-bold text-lg"><span>Total</span> <span id="summary-total">Rp 0</span></p>
+                          </div>
+
+                          <h3 class="text-2xl font-bold font-display my-6">Data Pengiriman</h3>
+                          <div class="form-group mb-4">
+                              <label for="name" class="block mb-2 font-medium">Nama Lengkap</label>
+                              <input type="text" id="name" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                          </div>
+                          <div class="form-group mb-6">
+                              <label for="phone" class="block mb-2 font-medium">Nomor Telepon</label>
+                              <input type="tel" id="phone" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                          </div>
+                          
+                           <div class="payment-options mb-6">
+                              <h4 class="font-medium mb-3">Metode Pembayaran</h4>
+                              <div class="payment-methods flex flex-wrap gap-3">
+                                  <label>
+                                      <input type="radio" name="payment" value="cod" checked class="sr-only">
+                                      <span class="px-4 py-2 border rounded-lg cursor-pointer transition-colors">COD</span>
+                                  </label>
+                                  <label>
+                                      <input type="radio" name="payment" value="transfer" class="sr-only">
+                                      <span class="px-4 py-2 border rounded-lg cursor-pointer transition-colors">Transfer</span>
+                                  </label>
+                                  <label>
+                                      <input type="radio" name="payment" value="ewallet" class="sr-only">
+                                     <span class="px-4 py-2 border rounded-lg cursor-pointer transition-colors">E-Wallet</span>
+                                  </label>
+                              </div>
+                          </div>
+                          
+                          <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-full text-lg transition-transform transform hover:scale-105">Pesan Sekarang</button>
+                      </form>
+                  </div>
+              </div>
+          </div>
+      </section>
+  </main>
+
+  {{-- Modal Konfirmasi --}}
+  <div id="confirm-modal" class="modal-overlay hidden fixed inset-0 bg-black/60 flex justify-center items-center z-50 p-4">
+      <div class="modal-content bg-white p-6 rounded-2xl shadow-lg w-full max-w-sm text-center">
+          <h4 class="text-xl font-bold mb-3">Konfirmasi</h4>
+          <p id="modal-message" class="text-gray-600 mb-6">Apakah Anda yakin ingin menghapus item ini?</p>
+          <div class="modal-actions flex justify-center gap-4">
+              <button id="modal-cancel-btn" class="px-6 py-2 rounded-full bg-gray-200 hover:bg-gray-300 font-semibold">Batal</button>
+              <button id="modal-confirm-btn" class="px-6 py-2 rounded-full bg-purple-600 hover:bg-purple-700 text-white font-semibold">Yakin</button>
+          </div>
+      </div>
+  </div>
+  
+  {{-- Modal Sukses Order --}}
+  <div id="order-success-modal" class="modal-overlay hidden fixed inset-0 bg-black/60 flex justify-center items-center z-50 p-4">
+      <div class="modal-content receipt bg-white p-6 rounded-2xl shadow-lg w-full max-w-md max-h-[85vh] overflow-y-auto">
+          <div id="receipt-content" class="p-4">
+              <i class="fas fa-check-circle text-5xl text-green-500 text-center block mb-4"></i>
+              <h2 class="text-2xl font-bold text-center font-display">Pesanan Berhasil!</h2>
+              <p class="text-gray-600 text-center mb-6">Terima kasih telah berbelanja di SweetBox.</p>
+              <div class="receipt-details my-4 py-4 border-y border-dashed border-gray-300">
+                  <h4 class="text-lg font-semibold text-center mb-3">Detail Pesanan</h4>
+                  <p class="text-sm flex justify-between"><strong>ID Pesanan:</strong> <span id="receipt-id"></span></p>
+                  <p class="text-sm flex justify-between mb-3"><strong>Tanggal:</strong> <span id="receipt-date"></span></p>
+                  <div id="receipt-items" class="space-y-1 text-sm"></div>
+                  <hr class="my-2 border-dashed">
+                  <div id="receipt-summary" class="text-sm"></div>
+              </div>
+          </div>
+          <div class="modal-actions flex justify-center gap-4 mt-4">
+              <button id="download-receipt-btn" class="px-5 py-2 rounded-full bg-purple-600 text-white font-semibold flex items-center gap-2"><i class="fas fa-download"></i> Unduh Struk</button>
+              <button id="close-receipt-btn" class="px-5 py-2 rounded-full bg-gray-200 font-semibold">Tutup</button>
+          </div>
+      </div>
+  </div>
+  @endslot
+@endcomponent
+

@@ -1,0 +1,66 @@
+@component('layouts/app', { title: 'Produk - SweetBox' })
+  @slot('main')
+  <main class="pt-24 sm:pt-28">
+    <section id="product-page" class="py-12">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-8">
+            <aside class="w-full lg:w-1/4 lg:sticky top-28 self-start h-auto lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                <div class="filter-group mb-6">
+                    <h3 class="text-lg font-semibold mb-4 text-purple-700 border-b pb-2">Filter Produk</h3>
+                    <input type="text" id="search-box" placeholder="Cari dessert..." class="w-full p-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                </div>
+                <div class="filter-group mb-6">
+                    <h3 class="text-lg font-semibold mb-4 text-purple-700 border-b pb-2">Urutkan</h3>
+                    <select id="sort-filter" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                        <option value="default">Default</option>
+                        <option value="price-asc">Harga Terendah</option>
+                        <option value="price-desc">Harga Tertinggi</option>
+                        <option value="calories-asc">Kalori Terendah</option>
+                        <option value="calories-desc">Kalori Tertinggi</option>
+                        <option value="rating-desc">Bintang Tertinggi</option>
+                        <option value="rating-asc">Bintang Terendah</option>
+                    </select>
+                </div>
+                <div class="filter-group mb-6">
+                    <h3 class="text-lg font-semibold mb-4 text-purple-700 border-b pb-2">Kota</h3>
+                    <select id="city-filter" class="city-select w-full">
+                        <option value="all">Semua Kota</option>
+                    </select>
+                </div>
+                <div class="filter-group mb-6">
+                    <h3 class="text-lg font-semibold mb-4 text-purple-700 border-b pb-2">Range Harga (Rp)</h3>
+                    <div class="price-range flex items-center gap-2">
+                       <input type="number" id="min-price" placeholder="Min" min="0" class="w-full p-2 border border-gray-300 rounded-lg">
+                       <span>-</span>
+                       <input type="number" id="max-price" placeholder="Maks" min="0" class="w-full p-2 border border-gray-300 rounded-lg">
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <h3 class="text-lg font-semibold mb-4 text-purple-700 border-b pb-2">Rating</h3>
+                    <div class="rating-filter flex text-3xl cursor-pointer text-gray-300" id="rating-filter">
+                        <span data-rating="1">★</span>
+                        <span data-rating="2">★</span>
+                        <span data-rating="3">★</span>
+                        <span data-rating="4">★</span>
+                        <span data-rating="5">★</span>
+                    </div>
+                </div>
+            </aside>
+            <div class="w-full lg:w-3/4">
+                <div class="text-center lg:text-left mb-8">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 font-display">Pilihan Dessert Terbaik</h2>
+                    <p class="mt-2 text-lg text-gray-600">Temukan hidangan penutup favorit Anda dari berbagai kota di Indonesia.</p>
+                </div>
+                <div class="product-grid grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6" id="product-grid">
+                    {{-- Produk akan dirender di sini oleh JS --}}
+                </div>
+                <div id="no-results" class="hidden text-center py-16">
+                    <h3 class="text-2xl font-semibold text-gray-800">Oops! Produk tidak ditemukan.</h3>
+                    <p class="text-gray-600 mt-2">Coba ubah kata kunci pencarian atau filter Anda.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+  </main>
+  @endslot
+@endcomponent
+
