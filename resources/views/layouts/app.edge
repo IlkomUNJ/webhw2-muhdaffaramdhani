@@ -5,6 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{ title || 'SweetBox - Pesan Dessert Khas Daerah' }}</title>
+<meta name="csrf-token" content="{{ csrfToken }}">
 
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32' fill='none'><rect x='4' y='8' width='24' height='16' rx='4' fill='%23FFD1DC'/><path d='M4 8C4 5.79086 5.79086 4 8 4H24C26.2091 4 28 5.79086 28 8V10H4V8Z' fill='%23F8BBD0'/><rect x='14' y='4' width='4' height='24' fill='%23A7D9E3'/><rect x='4' y='14' width='24' height='4' fill='%23A7D9E3'/><path d='M16 12L19 9L16 6L13 9L16 12Z' fill='%23A7D9E3'/></svg>" type="image/svg+xml">
 
@@ -19,14 +20,11 @@
 {{-- Tailwind CSS from CDN --}}
 <script src="https://cdn.tailwindcss.com"></script>
 
-{{-- External JS & CSS for specific pages --}}
-@if(route.name === 'products')
+@if(route.name === 'products.index')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 @endif
 
-{{-- Vite Assets --}}
 @vite(['resources/css/app.css', 'resources/js/app.js'])
-
 
 </head>
 <body class="bg-slate-50 text-gray-800 flex flex-col min-h-screen">
@@ -37,27 +35,32 @@
             <a href="{{ route('home') }}" class="text-3xl font-bold text-purple-600 font-display">SweetBox</a>
             <nav class="hidden md:flex items-center space-x-8">
                 <a href="{{ route('home') }}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">Home</a>
-                <a href="{{ route('products') }}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">Product</a>
+                <a href="{{ route('products.index') }}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">Product</a>
                 <a href="{{ route('about') }}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">About</a>
             </nav>
             <div class="flex items-center space-x-4">
-                {{-- Admin Dashboard Link (Tampil hanya jika is_admin true) --}}
-                <a href="{{ route('admin') }}" id="admin-link-desktop" class="hidden text-gray-700 hover:text-red-500" aria-label="Admin Dashboard">
-                    <i class="fas fa-user-shield text-2xl"></i>
-                </a>
+            @if(auth.user && auth.user.role === 'seller')
+                  <a href="{{ route('seller.dashboard') }}" class="text-gray-700 hover:text-red-500" aria-label="Admin Dashboard">
+                      <i class="fas fa-user-shield text-2xl"></i>
+                  </a>
+                @endif
                 
-                {{-- Cart Icon --}}
-                <a href="{{ route('checkout') }}" class="cart-icon relative text-gray-700 hover:text-purple-600" aria-label="Shopping Cart">
+                <a href="{{ route('cart.index') }}" class="cart-icon relative text-gray-700 hover:text-purple-600" aria-label="Shopping Cart">
                     <i class="fas fa-shopping-bag text-2xl"></i>
-                    <span class="cart-badge absolute -top-2 -right-2 bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold" style="display: none;">0</span>
+                    <span class="cart-badge absolute -top-2 -right-2 bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold" style="{{ session.get('cart', []).length > 0 ? '' : 'display: none;' }}">{{ session.get('cart', []).reduce((total, item) => total + item.quantity, 0) }}</span>
                 </a>
                 
-                {{-- Auth Buttons (Desktop) --}}
-                <div id="auth-buttons-desktop" class="hidden md:flex items-center space-x-4">
-                    <a href="{{ route('login') }}" id="login-button" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">Login</a>
-                    <a href="{{ route('register') }}" id="register-button" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-full transition-colors">Register</a>
-                    <button id="logout-button" class="hidden text-gray-700 hover:text-red-500 font-medium transition-colors" onclick="window.sweetbox.logout()">Logout</button>
-                    <span id="user-info" class="hidden text-sm font-medium text-purple-600"></span>
+                <div class="hidden md:flex items-center space-x-4">
+                    @if(auth.user)
+                      <span class="text-sm font-medium text-purple-600">Hai, {{ auth.user.username }}</span>
+                      <form action="{{ route('auth.logout') }}" method="POST">
+                        {{ csrfField() }}
+                        <button type="submit" class="text-gray-700 hover:text-red-500 font-medium transition-colors">Logout</button>
+                      </form>
+                    @else
+                      <a href="{{ route('auth.login') }}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">Login</a>
+                      <a href="{{ route('auth.register') }}" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-full transition-colors">Register</a>
+                    @endif
                 </div>
                 
                 <button class="hamburger-menu md:hidden flex flex-col justify-around w-6 h-5 bg-transparent border-none cursor-pointer p-0 z-20" id="hamburger-menu" aria-label="Open menu">
@@ -73,17 +76,27 @@
 <nav class="mobile-nav fixed top-0 left-0 w-full h-full bg-white z-10 flex flex-col justify-center items-center transform translate-x-full transition-transform duration-300 md:hidden" id="mobile-nav">
     <ul class="text-center">
         <li class="my-4"><a href="{{ route('home') }}" class="text-3xl font-semibold text-gray-800">Home</a></li>
-        <li class="my-4"><a href="{{ route('products') }}" class="text-3xl font-semibold text-gray-800">Product</a></li>
+        <li class="my-4"><a href="{{ route('products.index') }}" class="text-3xl font-semibold text-gray-800">Product</a></li>
         <li class="my-4"><a href="{{ route('about') }}" class="text-3xl font-semibold text-gray-800">About</a></li>
-        <li class="my-4"><a href="{{ route('checkout') }}" class="text-3xl font-semibold text-gray-800">Shopping Cart</a></li>
-        <li id="mobile-admin-link" class="my-4 hidden"><a href="{{ route('admin') }}" class="text-3xl font-semibold text-red-500">Admin Dashboard</a></li>
+        <li class="my-4"><a href="{{ route('cart.index') }}" class="text-3xl font-semibold text-gray-800">Shopping Cart</a></li>
+
+        @if(auth.user && auth.user.role === 'seller')
+          <li class="my-4"><a href="{{ route('seller.dashboard') }}" class="text-3xl font-semibold text-red-500">Admin Dashboard</a></li>
+        @endif
         
-        {{-- Auth Buttons (Mobile) --}}
-        <div id="auth-buttons-mobile" class="mt-8 pt-4 border-t border-gray-200">
-             <span id="user-info-mobile" class="hidden text-xl font-medium text-purple-600 block mb-4"></span>
-             <li class="my-4"><a href="{{ route('login') }}" id="login-button-mobile" class="text-3xl font-semibold text-gray-800">Login</a></li>
-             <li class="my-4"><a href="{{ route('register') }}" id="register-button-mobile" class="text-3xl font-semibold text-purple-600">Register</a></li>
-             <li class="my-4 hidden" id="logout-button-mobile"><button onclick="window.sweetbox.logout()" class="text-3xl font-semibold text-red-500">Logout</button></li>
+        <div class="mt-8 pt-4 border-t border-gray-200">
+            @if(auth.user)
+                <span class="text-xl font-medium text-purple-600 block mb-4">Hai, {{ auth.user.username }}</span>
+                <li class="my-4">
+                  <form action="{{ route('auth.logout') }}" method="POST">
+                    {{ csrfField() }}
+                    <button type="submit" class="text-3xl font-semibold text-red-500">Logout</button>
+                  </form>
+                </li>
+            @else
+                <li class="my-4"><a href="{{ route('auth.login') }}" class="text-3xl font-semibold text-gray-800">Login</a></li>
+                <li class="my-4"><a href="{{ route('auth.register') }}" class="text-3xl font-semibold text-purple-600">Register</a></li>
+            @endif
         </div>
     </ul>
 </nav>
@@ -93,62 +106,70 @@
 </main>
 
 <footer class="bg-white border-t border-gray-200 mt-16">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div class="footer-col">
-                <h4 class="text-2xl font-bold text-purple-600 mb-4 font-display">SweetBox</h4>
+    <div class="container mx-auto px-4 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+                <h3 class="text-xl font-bold text-gray-900 mb-4">SweetBox</h3>
                 <p class="text-gray-600">Membawa kelezatan dessert khas nusantara langsung ke depan pintu Anda. Kualitas dan rasa otentik adalah prioritas kami.</p>
-                <div class="social-links mt-6 flex space-x-4">
-                    <a href="#" aria-label="Facebook" class="text-gray-500 hover:text-purple-600"><i class="fab fa-facebook-f text-xl"></i></a>
-                    <a href="#" aria-label="Twitter" class="text-gray-500 hover:text-purple-600"><i class="fab fa-twitter text-xl"></i></a>
-                    <a href="#" aria-label="Instagram" class="text-gray-500 hover:text-purple-600"><i class="fab fa-instagram text-xl"></i></a>
-                    <a href="#" aria-label="Tiktok" class="text-gray-500 hover:text-purple-600"><i class="fab fa-tiktok text-xl"></i></a>
+                <div class="flex space-x-4 mt-4">
+                    <a href="#" class="text-gray-400 hover:text-purple-600"><i class="fab fa-facebook"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-purple-600"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-purple-600"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-purple-600"><i class="fab fa-tiktok"></i></a>
                 </div>
             </div>
-            <div class="footer-col">
-                <h4 class="text-lg font-semibold text-gray-900 mb-4 relative before:content-[''] before:absolute before:left-0 before:bottom-[-8px] before:w-12 before:h-0.5 before:bg-purple-600">Menu</h4>
-                <ul class="space-y-2 mt-8">
-                    <li><a href="{{ route('home') }}" class="text-gray-600 hover:text-purple-600 hover:pl-2 transition-all">Home</a></li>
-                    <li><a href="{{ route('products') }}" class="text-gray-600 hover:text-purple-600 hover:pl-2 transition-all">Product</a></li>
-                    <li><a href="{{ route('about') }}" class="text-gray-600 hover:text-purple-600 hover:pl-2 transition-all">About</a></li>
-                    <li><a href="{{ route('checkout') }}" class="text-gray-600 hover:text-purple-600 hover:pl-2 transition-all">Shopping Cart</a></li>
+            <div>
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Menu</h3>
+                <ul class="space-y-2 text-gray-600">
+                    <li><a href="{{ route('home') }}" class="hover:text-purple-600">Home</a></li>
+                    <li><a href="{{ route('products.index') }}" class="hover:text-purple-600">Product</a></li>
+                    <li><a href="{{ route('about') }}" class="hover:text-purple-600">About</a></li>
+                    <li><a href="{{ route('cart.index') }}" class="hover:text-purple-600">Shopping Cart</a></li>
                 </ul>
             </div>
-            <div class="footer-col">
-                <h4 class="text-lg font-semibold text-gray-900 mb-4 relative before:content-[''] before:absolute before:left-0 before:bottom-[-8px] before:w-12 before:h-0.5 before:bg-purple-600">Contact</h4>
-                <ul class="space-y-3 mt-8 text-gray-600">
-                    <li class="flex items-start"><i class="fas fa-map-marker-alt text-purple-600 mt-1 mr-3"></i> Jl. Rambutan Blok N No.9, Penggilingan, Cakung, Jakarta Timur, DKI Jakarta 13940</li>
-                    <li class="flex items-center"><i class="fas fa-phone text-purple-600 mr-3"></i> +628 23 2053 8422</li>
-                    <li class="flex items-center"><i class="fas fa-envelope text-purple-600 mr-3"></i> halo@sweetbox.com</li>
+            <div>
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Contact</h3>
+                <ul class="space-y-2 text-gray-600">
+                    <li><i class="fas fa-phone mr-2"></i> +628 23 2053 8422</li>
+                    <li><i class="fas fa-envelope mr-2"></i> halo@sweetbox.com</li>
+                    <li><a href="#" class="inline-flex items-center text-white bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-full mt-2">
+                        <span>Kirim Kritik & Saran</span>
+                    </a></li>
                 </ul>
-                 <a href="mailto:kritikdansaran@sweetbox.com" class="inline-block mt-4 bg-purple-100 text-purple-700 px-4 py-2 rounded-full text-sm font-semibold hover:bg-purple-200 transition-colors">Kirim Kritik & Saran</a>
             </div>
-            <div class="footer-col">
-                <h4 class="text-lg font-semibold text-gray-900 mb-4 relative before:content-[''] before:absolute before:left-0 before:bottom-[-8px] before:w-12 before:h-0.5 before:bg-purple-600">Lokasi Kami</h4>
-                <div class="map-container rounded-lg overflow-hidden mt-8">
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d991.5977937402661!2d106.9355694283832!3d-6.19991206659103!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e698b69deb4ac43%3A0xb0514e6b3e06915d!2sJl.%20Rambutan%20Blok%20N%20No.9%2C%20RT.19%2FRW.7%2C%20Penggilingan%2C%20Kec.%20Cakung%2C%20Kota%20Jakarta%20Timur%2C%20Daerah%20Khusus%20Ibukota%20Jakarta%2013940!5e0!3m2!1sid!2sid!4v1727716488344!5m2!1sid!2sid" width="100%" height="200" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            <div>
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Lokasi Kami</h3>
+                <p class="text-gray-600">
+                    Jl. Rambutan Blok N No.9, Penggilingan, Cakung, Kota Jakarta Timur, DKI Jakarta 13940
+                </p>
+                <div class="mt-4">
+                    <iframe
+                        class="w-full h-32 rounded-lg"
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.5!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f5c8c8c8c8c7%3A0x8c8c8c8c8c8c8c8c!2sJl.%20Rambutan%20Blok%20N%20No.9%2C%20Penggilingan%2C%20Kec.%20Cakung%2C%20Kota%20Jakarta%20Timur%2C%20Daerah%20Khusus%20Ibukota%20Jakarta%2013940!5e0!3m2!1sid!2sid!4v1625123456789!5m2!1sid!2sid"
+                        frameborder="0"
+                        allowfullscreen=""
+                        loading="lazy">
+                    </iframe>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="footer-bottom text-center py-6 border-t border-gray-200">
-        <p class="text-gray-500">&copy; 2025 SweetBox. Semua Hak Cipta Dilindungi.</p>
+        <div class="border-t border-gray-200 mt-8 pt-8 text-center text-gray-600">
+            <p>&copy; 2025 SweetBox. Semua Hak Cipta Dilindungi.</p>
+        </div>
     </div>
 </footer>
 
 <div id="notification" class="notification fixed bottom-5 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-lg z-50 opacity-0 transition-all duration-300"></div>
 
-{{-- External JS libs --}}
-@if(route.name === 'products' || route.name === 'checkout' || route.name === 'admin')
+@if(route.name === 'products.index' || route.name === 'cart.index')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 @endif
-@if(route.name === 'products')
+@if(route.name === 'products.index')
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 @endif
-@if(route.name === 'checkout')
+@if(route.name === 'cart.index')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 @endif
-
 
 </body>
 </html>

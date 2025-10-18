@@ -1,22 +1,30 @@
-@component('layouts/app', { title: 'Login Buyer - SweetBox' })
+@component('layouts/app', { title: 'Login - SweetBox' })
 @slot('main')
 <main class="py-16 sm:py-24">
     <div class="container mx-auto px-4 max-w-lg">
         <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
             <h2 class="text-3xl font-bold text-center text-purple-700 font-display mb-6">Masuk ke Akun Anda</h2>
-            <form id="login-form">
+
+            @if(flashMessages.has('error'))
+              <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <strong class="font-bold">Oops!</strong>
+                <span class="block sm:inline">{{ flashMessages.get('error') }}</span>
+              </div>
+            @endif
+
+            <form action="{{ route('auth.login.submit') }}" method="POST">
+                {{ csrfField() }}
                 <div class="mb-4">
-                    <label for="login-email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                    <input type="email" id="login-email" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500" required>
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                    <input type="text" name="username" id="username" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500" value="{{ flashMessages.get('username') || '' }}" required>
                 </div>
                 <div class="mb-6">
-                    <label for="login-password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                    <input type="password" id="login-password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500" required>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input type="password" name="password" id="password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500" required>
                 </div>
                 <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-full text-lg transition-transform transform hover:scale-105">Login</button>
             </form>
-            <p class="text-center text-gray-600 mt-4">Belum punya akun? <a href="{{ route('register') }}" class="text-purple-600 hover:underline font-medium">Daftar Sekarang</a></p>
-            <p class="text-center text-gray-600 mt-2">Login sebagai Seller? <button class="text-purple-600 hover:underline font-medium" onclick="window.sweetbox.loginAsAdmin()">Login Admin</button></p>
+            <p class="text-center text-gray-600 mt-4">Belum punya akun? <a href="{{ route('auth.register') }}" class="text-purple-600 hover:underline font-medium">Daftar Sekarang</a></p>
         </div>
     </div>
 </main>

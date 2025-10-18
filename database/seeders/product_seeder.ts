@@ -1,75 +1,74 @@
-const allProducts = [
-    { 
-        id: 1,
+import Product from '#models/product'
+import { BaseSeeder } from '@adonisjs/lucid/seeders'
+
+export default class extends BaseSeeder {
+  async run() {
+    await Product.createMany([
+      {
         name: 'Bolu Meranti',
         city: 'Medan',
         price: 95000,
         rating: 5,
         calories: 350,
         description: 'Bolu gulung lembut dengan isian melimpah khas Medan yang legendaris.',
-        image: '/images/bolu-meranti.jpg'
-    },
-    {
-        id: 2,
+        imageUrl: '/images/bolu-meranti.jpg',
+      },
+      {
         name: 'Lapis Legit',
         city: 'Pontianak',
         price: 120000,
         rating: 5,
         calories: 420,
         description: 'Kue lapis berlapis-lapis harum rempah dan mentega khas Pontianak.',
-        image: '/images/lapis-legit.jpg'
-    },
-    {
-        id: 3,
+        imageUrl: '/images/lapis-legit.jpg',
+      },
+      {
         name: 'Wingko Babat',
         city: 'Semarang',
         price: 30000,
         rating: 4,
         calories: 250,
         description: 'Kue berbahan kelapa parut dan ketan yang manis gurih khas Semarang.',
-        image: '/images/wingko-babat.jpg'
-    },
-    {
-        id: 4,
+        imageUrl: '/images/wingko-babat.jpg',
+      },
+      {
         name: 'Bakpia Pathok',
         city: 'Yogyakarta',
         price: 45000,
         rating: 5,
         calories: 200,
         description: 'Kue isi kacang hijau manis gurih dengan kulit tipis lembut khas Jogja.',
-        image: '/images/bakpia-pathok.jpg'
-    },
-    {
-        id: 5,
+        imageUrl: '/images/bakpia-pathok.jpg',
+      },
+      {
         name: 'Lapis Surabaya',
         city: 'Surabaya',
         price: 110000,
         rating: 5,
         calories: 380,
         description: 'Kue tiga lapis lembut dengan perpaduan cokelat dan vanila khas Surabaya.',
-        image: '/images/lapis-surabaya.jpg'
-    },
-    {
-        id: 6,
+        imageUrl: '/images/lapis-surabaya.jpg',
+      },
+      // ... Tambahkan sisa 20 produk lainnya di sini dengan format yang sama
+      {
         name: 'Kue Putu',
         city: 'Malang',
         price: 15000,
         rating: 4,
         calories: 180,
         description: 'Kue tradisional kukus isi gula merah dengan taburan kelapa parut segar.',
-        image: '/images/kue-putu.jpg'
-    },
-    {
-        id: 7,
+        imageUrl: '/images/kue-putu.jpg',
+      },
+      {
         name: 'Dodol Garut',
         city: 'Garut',
         price: 40000,
         rating: 5,
         calories: 300,
         description: 'Manisan kenyal manis dari ketan dan gula merah khas Garut.',
-        image: '/images/dodol-garut.jpg'
-    },
-    {    
+        imageUrl: '/images/dodol-garut.jpg',
+      },
+      {
         id: 8,
         name: 'Kue Ape Betawi',
         city: 'Jakarta Pusat',
@@ -77,9 +76,9 @@ const allProducts = [
         rating: 4,
         calories: 150,
         description: 'Kue dengan bagian tengah empuk dan pinggiran renyah, khas Betawi.',
-        image: '/images/kue-ape-betawi.jpg'
-    },
-    {
+        imageUrl: '/images/kue-ape-betawi.jpg',
+      },
+      {
         id: 9,
         name: 'Es Pisang Ijo',
         city: 'Makassar',
@@ -87,9 +86,9 @@ const allProducts = [
         rating: 5,
         calories: 280,
         description: 'Pisang dibungkus adonan hijau dengan kuah santan manis segar khas Makassar.',
-        image: '/images/es-pisang-ijo.jpg'
-    },
-    {
+        imageUrl: '/images/es-pisang-ijo.jpg',
+      },
+      {
         id: 10,
         name: 'Bika Ambon',
         city: 'Ambon',
@@ -97,9 +96,9 @@ const allProducts = [
         rating: 5,
         calories: 320,
         description: 'Kue berserat legit dengan rasa manis gurih khas Ambon.',
-        image: '/images/bika-ambon.jpg'
-    },
-    {
+        imageUrl: '/images/bika-ambon.jpg',
+      },
+      {
         id: 11,
         name: 'Klappertaart',
         city: 'Manado',
@@ -107,9 +106,9 @@ const allProducts = [
         rating: 5,
         calories: 340,
         description: 'Puding kelapa muda dengan rasa manis gurih khas Manado.',
-        image: '/images/klappertaart.jpg'
-    },
-    {
+        imageUrl: '/images/klappertaart.jpg',
+      },
+      {
         id: 12,
         name: 'Kue Barongko',
         city: 'Parepare',
@@ -117,9 +116,9 @@ const allProducts = [
         rating: 4,
         calories: 250,
         description: 'Pisang kukus dengan santan manis gurih khas Bugis.',
-        image: '/images/kue-barongko.jpg'
-    },
-    {
+        imageUrl: '/images/kue-barongko.jpg',
+      },
+      {
         id: 13,
         name: 'Kue Delapan Jam',
         city: 'Palembang',
@@ -127,9 +126,9 @@ const allProducts = [
         rating: 5,
         calories: 500,
         description: 'Kue manis legit yang dimasak delapan jam khas Palembang.',
-        image: '/images/kue-delapan-jam.jpg'
-    },
-    {
+        imageUrl: '/images/kue-delapan-jam.jpg',
+      },
+      {
         id: 14,
         name: 'Es Selendang Mayang',
         city: 'Jakarta Selatan',
@@ -137,9 +136,9 @@ const allProducts = [
         rating: 4,
         calories: 200,
         description: 'Es dengan potongan kue berwarna-warni khas Betawi.',
-        image: '/images/es-selendang-mayang.jpg'
-    },
-    {
+        imageUrl: '/images/es-selendang-mayang.jpg',
+      },
+      {
         id: 15,
         name: 'Kue Bagea',
         city: 'Ternate',
@@ -147,9 +146,9 @@ const allProducts = [
         rating: 4,
         calories: 280,
         description: 'Kue keras manis berbahan sagu khas Maluku Utara.',
-        image: '/images/kue-bagea.jpg'
-    },
-    {
+        imageUrl: '/images/kue-bagea.jpg',
+      },
+      {
         id: 16,
         name: 'Es Dawet Ayu',
         city: 'Banjarnegara',
@@ -157,9 +156,9 @@ const allProducts = [
         rating: 5,
         calories: 210,
         description: 'Minuman segar dengan cendol hijau khas Banjarnegara.',
-        image: '/images/es-dawet-ayu.jpg'
-    },
-    {
+        imageUrl: '/images/es-dawet-ayu.jpg',
+      },
+      {
         id: 17,
         name: 'Kue Sagon',
         city: 'Klaten',
@@ -167,9 +166,9 @@ const allProducts = [
         rating: 4,
         calories: 220,
         description: 'Kue kering berbahan kelapa parut khas Jawa Tengah.',
-        image: '/images/kue-sagon.jpg'
-    },
-    {
+        imageUrl: '/images/kue-sagon.jpg',
+      },
+      {
         id: 18,
         name: 'Kue Lupis',
         city: 'Kediri',
@@ -177,9 +176,9 @@ const allProducts = [
         rating: 4,
         calories: 190,
         description: 'Ketan berbalut parutan kelapa dan gula merah cair khas Kediri.',
-        image: '/images/kue-lupis.jpg'
-    },
-    {
+        imageUrl: '/images/kue-lupis.jpg',
+      },
+      {
         id: 19,
         name: 'Kue Rintak',
         city: 'Bangka',
@@ -187,9 +186,9 @@ const allProducts = [
         rating: 4,
         calories: 260,
         description: 'Kue kering dari sagu khas Bangka Belitung.',
-        image: '/images/kue-rintak.jpg'
-    },
-    {
+        imageUrl: '/images/kue-rintak.jpg',
+      },
+      {
         id: 20,
         name: 'Kue Cucur',
         city: 'Cirebon',
@@ -197,9 +196,9 @@ const allProducts = [
         rating: 4,
         calories: 230,
         description: 'Kue goreng manis gurih khas Cirebon.',
-        image: '/images/kue-cucur.jpg'
-    },
-    {
+        imageUrl: '/images/kue-cucur.jpg',
+      },
+      {
         id: 21,
         name: 'Es Cendol',
         city: 'Bandung',
@@ -207,9 +206,9 @@ const allProducts = [
         rating: 5,
         calories: 200,
         description: 'Es manis segar dengan cendol hijau khas Bandung.',
-        image: '/images/es-cendol.jpg'
-    },
-    {
+        imageUrl: '/images/es-cendol.jpg',
+      },
+      {
         id: 22,
         name: 'Kue Bugis',
         city: 'Banjarmasin',
@@ -217,9 +216,9 @@ const allProducts = [
         rating: 4,
         calories: 210,
         description: 'Kue ketan isi unti kelapa khas Kalimantan Selatan.',
-        image: '/images/kue-bugis.jpg'
-    },
-    {
+        imageUrl: '/images/kue-bugis.jpg',
+      },
+      {
         id: 23,
         name: 'Kue Bangket Durian',
         city: 'Riau',
@@ -227,9 +226,9 @@ const allProducts = [
         rating: 4,
         calories: 240,
         description: 'Kue kering manis gurih dengan aroma durian khas Riau.',
-        image: '/images/kue-bangket-durian.jpg'
-    },
-    {
+        imageUrl: '/images/kue-bangket-durian.jpg',
+      },
+      {
         id: 24,
         name: 'Kue Karawo',
         city: 'Gorontalo',
@@ -237,9 +236,9 @@ const allProducts = [
         rating: 4,
         calories: 270,
         description: 'Kue tradisional dengan cita rasa manis khas Gorontalo.',
-        image: '/images/kue-karawo.jpg'
-    },
-    {
+        imageUrl: '/images/kue-karawo.jpg',
+      },
+      {
         id: 25,
         name: 'Kue Gegicok',
         city: 'Bogor',
@@ -247,7 +246,8 @@ const allProducts = [
         rating: 4,
         calories: 180,
         description: 'Ketan dengan parutan kelapa manis gurih khas Bogor.',
-        image: '/images/kue-gegicok.jpg'
-    }
-];
-
+        imageUrl: '/images/kue-gegicok.jpg',
+      },
+    ])
+  }
+}

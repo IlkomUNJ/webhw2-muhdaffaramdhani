@@ -4,6 +4,12 @@
     "rootDir": "./",
     "outDir": "./build",
     "module": "NodeNext",
-    "moduleResolution": "NodeNext"
+    "moduleResolution": "NodeNext",
+    "paths": {
+      "#*": ["./app/*"],
+      "#config/*": ["./config/*"],
+      "#database/*": ["./database/*"],
+      "#start/*": ["./start/*"]
+    }
   }
 }

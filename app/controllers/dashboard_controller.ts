@@ -1,13 +1,13 @@
 import type { HttpContext } from '@adonisjs/core/http'
 
 export default class DashboardController {
-  public async buyer({ view, auth }: HttpContext) {
-    const user = auth.getUserOrFail()
-    return view.render('pages/buyer/dashboard', { user })
+  public async buyerDashboard(ctx: HttpContext) {
+    await ctx.auth.check()
+    return ctx.view.render('pages/buyer/dashboard', { user: ctx.auth.user })
   }
 
-  public async seller({ view, auth }: HttpContext) {
-    const user = auth.getUserOrFail()
-    return view.render('pages/seller/dashboard', { user })
+  public async sellerDashboard(ctx: HttpContext) {
+    await ctx.auth.check()
+    return ctx.view.render('pages/seller/dashboard', { user: ctx.auth.user })
   }
 }

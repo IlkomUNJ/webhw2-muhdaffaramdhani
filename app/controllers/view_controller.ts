@@ -1,4 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import ProductController from './product_controller.js'
 
 /**
  * Controller untuk mengelola tampilan dasar (pages) di aplikasi.
@@ -9,7 +10,9 @@ export default class ViewController {
    * Menampilkan halaman utama.
    */
   public async home({ view }: HttpContext) {
-    return view.render('pages/home')
+    const productController = new ProductController()
+    const popularProducts = await productController.getPopularProducts()
+    return view.render('pages/home', { popularProducts })
   }
 
   /**
