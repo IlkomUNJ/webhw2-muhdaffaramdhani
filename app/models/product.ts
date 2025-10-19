@@ -27,6 +27,9 @@ export default class Product extends BaseModel {
   declare imageUrl: string
 
   @column()
+  declare orderCount: number
+
+  @column()
   declare sellerId: number
 
   @column.dateTime({ autoCreate: true })

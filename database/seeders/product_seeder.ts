@@ -1,8 +1,36 @@
-import Product from '#models/product'
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
+import User from '#models/user'
+import Product from '#models/product'
 
-export default class extends BaseSeeder {
-  async run() {
+export default class DatabaseSeeder extends BaseSeeder {
+  logger: any
+  public async run() {
+    // 1. Buat Pengguna (Users) terlebih dahulu
+    const users = await User.createMany([
+      {
+        username: 'seller',
+        password: '111',
+        role: 'seller',
+        email: 'seller@sweetbox.com',
+      },
+      {
+        username: 'buyer',
+        password: '999',
+        role: 'buyer',
+        email: 'buyer@sweetbox.com',
+      },
+    ])
+
+    // Temukan pengguna penjual yang baru saja kita buat
+    const seller = users.find((u) => u.role === 'seller')
+
+    // Pastikan penjual ada sebelum membuat produk
+    if (!seller) {
+      this.logger.error('Seeder failed: Could not find seller to assign products to.')
+      return
+    }
+
+    // 2. Buat Produk dan kaitkan dengan ID penjual
     await Product.createMany([
       {
         name: 'Bolu Meranti',
@@ -12,6 +40,8 @@ export default class extends BaseSeeder {
         calories: 350,
         description: 'Bolu gulung lembut dengan isian melimpah khas Medan yang legendaris.',
         imageUrl: '/images/bolu-meranti.jpg',
+        orderCount: 250,
+        sellerId: seller.id,
       },
       {
         name: 'Lapis Legit',
@@ -21,6 +51,8 @@ export default class extends BaseSeeder {
         calories: 420,
         description: 'Kue lapis berlapis-lapis harum rempah dan mentega khas Pontianak.',
         imageUrl: '/images/lapis-legit.jpg',
+        orderCount: 230,
+        sellerId: seller.id,
       },
       {
         name: 'Wingko Babat',
@@ -30,6 +62,8 @@ export default class extends BaseSeeder {
         calories: 250,
         description: 'Kue berbahan kelapa parut dan ketan yang manis gurih khas Semarang.',
         imageUrl: '/images/wingko-babat.jpg',
+        orderCount: 300,
+        sellerId: seller.id,
       },
       {
         name: 'Bakpia Pathok',
@@ -39,6 +73,8 @@ export default class extends BaseSeeder {
         calories: 200,
         description: 'Kue isi kacang hijau manis gurih dengan kulit tipis lembut khas Jogja.',
         imageUrl: '/images/bakpia-pathok.jpg',
+        orderCount: 450,
+        sellerId: seller.id,
       },
       {
         name: 'Lapis Surabaya',
@@ -48,8 +84,9 @@ export default class extends BaseSeeder {
         calories: 380,
         description: 'Kue tiga lapis lembut dengan perpaduan cokelat dan vanila khas Surabaya.',
         imageUrl: '/images/lapis-surabaya.jpg',
+        orderCount: 210,
+        sellerId: seller.id,
       },
-      // ... Tambahkan sisa 20 produk lainnya di sini dengan format yang sama
       {
         name: 'Kue Putu',
         city: 'Malang',
@@ -58,6 +95,8 @@ export default class extends BaseSeeder {
         calories: 180,
         description: 'Kue tradisional kukus isi gula merah dengan taburan kelapa parut segar.',
         imageUrl: '/images/kue-putu.jpg',
+        orderCount: 180,
+        sellerId: seller.id,
       },
       {
         name: 'Dodol Garut',
@@ -67,9 +106,10 @@ export default class extends BaseSeeder {
         calories: 300,
         description: 'Manisan kenyal manis dari ketan dan gula merah khas Garut.',
         imageUrl: '/images/dodol-garut.jpg',
+        orderCount: 280,
+        sellerId: seller.id,
       },
       {
-        id: 8,
         name: 'Kue Ape Betawi',
         city: 'Jakarta Pusat',
         price: 10000,
@@ -77,9 +117,10 @@ export default class extends BaseSeeder {
         calories: 150,
         description: 'Kue dengan bagian tengah empuk dan pinggiran renyah, khas Betawi.',
         imageUrl: '/images/kue-ape-betawi.jpg',
+        orderCount: 150,
+        sellerId: seller.id,
       },
       {
-        id: 9,
         name: 'Es Pisang Ijo',
         city: 'Makassar',
         price: 20000,
@@ -87,9 +128,10 @@ export default class extends BaseSeeder {
         calories: 280,
         description: 'Pisang dibungkus adonan hijau dengan kuah santan manis segar khas Makassar.',
         imageUrl: '/images/es-pisang-ijo.jpg',
+        orderCount: 320,
+        sellerId: seller.id,
       },
       {
-        id: 10,
         name: 'Bika Ambon',
         city: 'Ambon',
         price: 60000,
@@ -97,9 +139,10 @@ export default class extends BaseSeeder {
         calories: 320,
         description: 'Kue berserat legit dengan rasa manis gurih khas Ambon.',
         imageUrl: '/images/bika-ambon.jpg',
+        orderCount: 190,
+        sellerId: seller.id,
       },
       {
-        id: 11,
         name: 'Klappertaart',
         city: 'Manado',
         price: 55000,
@@ -107,9 +150,10 @@ export default class extends BaseSeeder {
         calories: 340,
         description: 'Puding kelapa muda dengan rasa manis gurih khas Manado.',
         imageUrl: '/images/klappertaart.jpg',
+        orderCount: 200,
+        sellerId: seller.id,
       },
       {
-        id: 12,
         name: 'Kue Barongko',
         city: 'Parepare',
         price: 18000,
@@ -117,9 +161,10 @@ export default class extends BaseSeeder {
         calories: 250,
         description: 'Pisang kukus dengan santan manis gurih khas Bugis.',
         imageUrl: '/images/kue-barongko.jpg',
+        orderCount: 170,
+        sellerId: seller.id,
       },
       {
-        id: 13,
         name: 'Kue Delapan Jam',
         city: 'Palembang',
         price: 150000,
@@ -127,9 +172,10 @@ export default class extends BaseSeeder {
         calories: 500,
         description: 'Kue manis legit yang dimasak delapan jam khas Palembang.',
         imageUrl: '/images/kue-delapan-jam.jpg',
+        orderCount: 90,
+        sellerId: seller.id,
       },
       {
-        id: 14,
         name: 'Es Selendang Mayang',
         city: 'Jakarta Selatan',
         price: 12000,
@@ -137,9 +183,10 @@ export default class extends BaseSeeder {
         calories: 200,
         description: 'Es dengan potongan kue berwarna-warni khas Betawi.',
         imageUrl: '/images/es-selendang-mayang.jpg',
+        orderCount: 130,
+        sellerId: seller.id,
       },
       {
-        id: 15,
         name: 'Kue Bagea',
         city: 'Ternate',
         price: 25000,
@@ -147,9 +194,10 @@ export default class extends BaseSeeder {
         calories: 280,
         description: 'Kue keras manis berbahan sagu khas Maluku Utara.',
         imageUrl: '/images/kue-bagea.jpg',
+        orderCount: 80,
+        sellerId: seller.id,
       },
       {
-        id: 16,
         name: 'Es Dawet Ayu',
         city: 'Banjarnegara',
         price: 15000,
@@ -157,9 +205,10 @@ export default class extends BaseSeeder {
         calories: 210,
         description: 'Minuman segar dengan cendol hijau khas Banjarnegara.',
         imageUrl: '/images/es-dawet-ayu.jpg',
+        orderCount: 350,
+        sellerId: seller.id,
       },
       {
-        id: 17,
         name: 'Kue Sagon',
         city: 'Klaten',
         price: 18000,
@@ -167,9 +216,10 @@ export default class extends BaseSeeder {
         calories: 220,
         description: 'Kue kering berbahan kelapa parut khas Jawa Tengah.',
         imageUrl: '/images/kue-sagon.jpg',
+        orderCount: 115,
+        sellerId: seller.id,
       },
       {
-        id: 18,
         name: 'Kue Lupis',
         city: 'Kediri',
         price: 10000,
@@ -177,9 +227,10 @@ export default class extends BaseSeeder {
         calories: 190,
         description: 'Ketan berbalut parutan kelapa dan gula merah cair khas Kediri.',
         imageUrl: '/images/kue-lupis.jpg',
+        orderCount: 165,
+        sellerId: seller.id,
       },
       {
-        id: 19,
         name: 'Kue Rintak',
         city: 'Bangka',
         price: 30000,
@@ -187,9 +238,10 @@ export default class extends BaseSeeder {
         calories: 260,
         description: 'Kue kering dari sagu khas Bangka Belitung.',
         imageUrl: '/images/kue-rintak.jpg',
+        orderCount: 95,
+        sellerId: seller.id,
       },
       {
-        id: 20,
         name: 'Kue Cucur',
         city: 'Cirebon',
         price: 12000,
@@ -197,9 +249,10 @@ export default class extends BaseSeeder {
         calories: 230,
         description: 'Kue goreng manis gurih khas Cirebon.',
         imageUrl: '/images/kue-cucur.jpg',
+        orderCount: 140,
+        sellerId: seller.id,
       },
       {
-        id: 21,
         name: 'Es Cendol',
         city: 'Bandung',
         price: 15000,
@@ -207,9 +260,10 @@ export default class extends BaseSeeder {
         calories: 200,
         description: 'Es manis segar dengan cendol hijau khas Bandung.',
         imageUrl: '/images/es-cendol.jpg',
+        orderCount: 400,
+        sellerId: seller.id,
       },
       {
-        id: 22,
         name: 'Kue Bugis',
         city: 'Banjarmasin',
         price: 12000,
@@ -217,9 +271,10 @@ export default class extends BaseSeeder {
         calories: 210,
         description: 'Kue ketan isi unti kelapa khas Kalimantan Selatan.',
         imageUrl: '/images/kue-bugis.jpg',
+        orderCount: 125,
+        sellerId: seller.id,
       },
       {
-        id: 23,
         name: 'Kue Bangket Durian',
         city: 'Riau',
         price: 35000,
@@ -227,9 +282,10 @@ export default class extends BaseSeeder {
         calories: 240,
         description: 'Kue kering manis gurih dengan aroma durian khas Riau.',
         imageUrl: '/images/kue-bangket-durian.jpg',
+        orderCount: 105,
+        sellerId: seller.id,
       },
       {
-        id: 24,
         name: 'Kue Karawo',
         city: 'Gorontalo',
         price: 40000,
@@ -237,9 +293,10 @@ export default class extends BaseSeeder {
         calories: 270,
         description: 'Kue tradisional dengan cita rasa manis khas Gorontalo.',
         imageUrl: '/images/kue-karawo.jpg',
+        orderCount: 75,
+        sellerId: seller.id,
       },
       {
-        id: 25,
         name: 'Kue Gegicok',
         city: 'Bogor',
         price: 12000,
@@ -247,6 +304,8 @@ export default class extends BaseSeeder {
         calories: 180,
         description: 'Ketan dengan parutan kelapa manis gurih khas Bogor.',
         imageUrl: '/images/kue-gegicok.jpg',
+        orderCount: 155,
+        sellerId: seller.id,
       },
     ])
   }

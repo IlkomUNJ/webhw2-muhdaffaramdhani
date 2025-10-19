@@ -1,5 +1,11 @@
-import { defineConfig } from '@adonisjs/core/hash'
+import { defineConfig, drivers } from '@adonisjs/core/hash'
 
 export default defineConfig({
-  list: {},
+  default: 'bcrypt',
+
+  list: {
+    bcrypt: drivers.bcrypt({
+      rounds: 10,
+    }),
+  },
 })

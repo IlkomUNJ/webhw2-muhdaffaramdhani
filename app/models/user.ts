@@ -38,15 +38,16 @@ export default class User extends BaseModel {
   }
 
   static async verifyCredentials(username: string, password: string) {
-    try {
-      const user = await User.findByOrFail('username', username)
-      const verified = await hash.verify(password, user.password)
-      if (!verified) {
-        throw new Error('Invalid credentials')
-      }
-      return user
-    } catch (error) {
+    const user = await User.findBy('username', username)
+    if (!user) {
       throw new Error('Invalid credentials')
     }
+
+    const isVerified = await hash.verify(user.password, password)
+    if (!isVerified) {
+      throw new Error('Invalid credentials')
+    }
+
+    return user
   }
 }

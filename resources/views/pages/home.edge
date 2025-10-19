@@ -24,8 +24,8 @@
           @each(product in popularProducts)
           <a href="{{ route('products.show', { id: product.id }) }}" class="product-card bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform hover:scale-105 flex-none w-72">
               <div class="relative h-48">
-                  <img src="{{ product.image_url }}" alt="{{ product.name }}" class="w-full h-full object-cover">
-                  <div class="absolute top-2 right-2 bg-yellow-400 text-xs font-bold px-2 py-1 rounded-full flex items-center">
+                  <img src="{{ product.imageUrl }}" alt="{{ product.name }}" class="w-full h-full object-cover">
+                  <div class="absolute top-2 right-2 bg-yellow-400 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center">
                       <i class="fas fa-star mr-1"></i>
                       {{ product.rating }}
                   </div>
@@ -45,8 +45,8 @@
           @each(product in popularProducts)
           <a href="{{ route('products.show', { id: product.id }) }}" class="product-card bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform hover:scale-105 flex-none w-72">
               <div class="relative h-48">
-                  <img src="{{ product.image_url }}" alt="{{ product.name }}" class="w-full h-full object-cover">
-                  <div class="absolute top-2 right-2 bg-yellow-400 text-xs font-bold px-2 py-1 rounded-full flex items-center">
+                  <img src="{{ product.imageUrl }}" alt="{{ product.name }}" class="w-full h-full object-cover">
+                  <div class="absolute top-2 right-2 bg-yellow-400 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center">
                       <i class="fas fa-star mr-1"></i>
                       {{ product.rating }}
                   </div>

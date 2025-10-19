@@ -5,8 +5,12 @@ export default class CartController {
   /**
    * Display cart contents
    */
-  public async index(ctx: HttpContext) {
-    const cart = await ctx.session.get('cart', [])
+  public async index({ session, view }: HttpContext) {
+    const cart = session.get('cart', [])
+    if (!cart || cart.length === 0) {
+      return view.render('pages/cart', { cartItems: [] })
+    }
+
     const productIds = cart.map((item: any) => item.productId)
     const products = await Product.query().whereIn('id', productIds)
 
@@ -18,53 +22,53 @@ export default class CartController {
       }
     })
 
-    return ctx.view.render('pages/cart', { cartItems })
+    return view.render('pages/cart', { cartItems })
   }
 
   /**
-   * Add item to cart
+   * Add a product to the cart (stores a new cart item).
    */
-  public async addToCart(ctx: HttpContext) {
-    const productId = ctx.params.productId
-    const quantity = ctx.request.input('quantity', 1)
+  public async store({ params, session, response }: HttpContext) {
+    const productId = params.productId
+    const quantity = 1 // Default to 1 for a GET request
 
-    const cart = await ctx.session.get('cart', [])
-    const existingItem = cart.find((item: any) => item.productId === productId)
+    const cart = session.get('cart', []) || []
+    const existingItem = cart.find((item: any) => item.productId === Number(productId))
 
     if (existingItem) {
       existingItem.quantity += quantity
     } else {
-      cart.push({ productId, quantity })
+      cart.push({ productId: Number(productId), quantity })
     }
 
-    await ctx.session.put('cart', cart)
-    return ctx.response.redirect().back()
+    session.put('cart', cart)
+    session.flash('success', 'Produk berhasil ditambahkan ke keranjang!')
+
+    // Redirect back to the previous page
+    return response.redirect().back()
   }
 
   /**
    * Remove item from cart
    */
-  public async removeFromCart(ctx: HttpContext) {
-    const productId = ctx.params.productId
-    let cart = await ctx.session.get('cart', [])
+  public async removeFromCart({ params, session, response }: HttpContext) {
+    const productId = params.productId
+    let cart = session.get('cart', []) || []
 
-    cart = cart.filter((item: any) => item.productId !== productId)
+    cart = cart.filter((item: any) => item.productId !== Number(productId))
 
-    await ctx.session.put('cart', cart)
-    return ctx.response.redirect().back()
+    session.put('cart', cart)
+    return response.redirect().back()
   }
 
   /**
    * Checkout cart items
    */
-  public async checkout(ctx: HttpContext) {
-    // TODO: Process order with cart items
-    // const cart = await ctx.session.get('cart', [])
-
+  public async checkout({ session, response }: HttpContext) {
     // Clear cart after successful checkout
-    await ctx.session.forget('cart')
+    await session.forget('cart')
 
-    ctx.session.flash('success', 'Order placed successfully')
-    return ctx.response.redirect().toRoute('buyer.dashboard')
+    session.flash('success', 'Order placed successfully')
+    return response.redirect().toRoute('buyer.dashboard')
   }
 }

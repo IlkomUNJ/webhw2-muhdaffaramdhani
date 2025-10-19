@@ -1,66 +1,64 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
-import { validateRegistration, loginValidator } from '#validators/auth'
+import { registerValidator, loginValidator } from '#validators/auth'
 
 export default class AuthController {
-  // Menampilkan halaman registrasi
-  async showRegister({ view }: HttpContext) {
+  public async showRegister({ view }: HttpContext) {
     return view.render('pages/auth/register')
   }
 
-  // Menangani proses registrasi
-  async register({ request, response, auth, session }: HttpContext) {
-    try {
-      const payload = await validateRegistration(await request.all())
-      const user = await User.create(payload)
-      await auth.use('web').login(user)
+  public async register({ request, response, auth, session }: HttpContext) {
+    const payload = await registerValidator.validate(await request.all())
+    const user = await User.create(payload)
+    await auth.use('web').login(user)
 
-      if (user.role === 'seller') {
-        return response.redirect().toRoute('seller.dashboard')
-      }
-      return response.redirect().toRoute('buyer.dashboard')
-    } catch (error) {
-      session.flash('error', error.message)
-      session.flash('username', request.input('username'))
-      session.flash('email', request.input('email'))
-      return response.redirect().back()
+    session.flash('success', `Akun berhasil dibuat! Selamat datang, ${user.username}!`)
+
+    // Redirect based on role
+    if (user.role === 'seller') {
+      return response.redirect().toRoute('seller.dashboard')
     }
+
+    // For buyers, check for intended URL after registration
+    const intendedUrl = session.get('intended_url')
+    if (intendedUrl) {
+      session.forget('intended_url')
+      return response.redirect(intendedUrl)
+    }
+
+    return response.redirect().toRoute('buyer.dashboard')
   }
 
-  // Menampilkan halaman login
-  async showLogin({ view }: HttpContext) {
+  public async showLogin({ view }: HttpContext) {
     return view.render('pages/auth/login')
   }
 
-  // Menangani proses login
-  async login({ request, response, auth, session }: HttpContext) {
-    try {
-      const { username, password } = await request.validateUsing(loginValidator)
-      const user = await User.verifyCredentials(username, password)
+  public async login({ request, response, auth, session }: HttpContext) {
+    const { username, password } = await request.validateUsing(loginValidator)
+    const user = await User.verifyCredentials(username, password)
 
-      // Clear any existing session data
-      session.clear()
+    await auth.use('web').login(user)
+    session.flash('success', `Selamat datang kembali, ${user.username}!`)
 
-      // Login user
-      await auth.use('web').login(user)
-
-      // Set welcome message
-      session.flash('success', 'Selamat datang kembali!')
-
-      if (user.role === 'seller') {
-        return response.redirect().toRoute('seller.dashboard')
-      }
-      return response.redirect().toRoute('buyer.dashboard')
-    } catch (error) {
-      session.flash('error', 'Username atau password salah.')
-      session.flash('username', request.input('username'))
-      return response.redirect().back()
+    // If user is a seller, always redirect to seller dashboard
+    if (user.role === 'seller') {
+      return response.redirect().toRoute('seller.dashboard')
     }
+
+    // For buyers, check for an intended URL
+    const intendedUrl = session.get('intended_url')
+    if (intendedUrl) {
+      session.forget('intended_url')
+      return response.redirect(intendedUrl)
+    }
+
+    // If no intended URL, redirect buyer to their dashboard
+    return response.redirect().toRoute('buyer.dashboard')
   }
 
-  // Menangani proses logout
-  async logout({ auth, response }: HttpContext) {
+  public async logout({ auth, response, session }: HttpContext) {
     await auth.use('web').logout()
+    session.flash('success', 'Anda berhasil logout.')
     return response.redirect().toRoute('home')
   }
 }
