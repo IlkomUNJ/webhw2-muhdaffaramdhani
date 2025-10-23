@@ -5,7 +5,7 @@ export default class CartController {
   /**
    * Display cart contents
    */
-  public async index({ session, view }: HttpContext) {
+  public async index({ session, view, auth }: HttpContext) {
     const cart = session.get('cart', []) || []
     let cartItems: any[] = []
 
@@ -27,22 +27,39 @@ export default class CartController {
         .filter((item: any) => item !== null)
     }
 
-    return view.render('pages/cart', { cartItems })
+    // Kirim status autentikasi ke view keranjang
+    return view.render('pages/cart', { cartItems, isAuthenticated: auth.isAuthenticated })
   }
 
   /**
    * Add a product to the cart (stores a new cart item).
    */
-  public async store({ params, session, response }: HttpContext) {
+  public async store({ params, session, response, auth }: HttpContext) {
+    // PERBAIKAN BUG 1: Tambahkan pengecekan autentikasi eksplisit di controller
+    // Meskipun route sudah diproteksi middleware, ini sebagai lapisan tambahan
+    if (!auth.isAuthenticated) {
+      session.flash('error', 'Anda harus login untuk menambahkan item ke keranjang.')
+      return response.redirect().toRoute('auth.login') // Redirect ke login jika belum
+    }
+
     const productId = params.productId
-    const quantity = 1 // Default to 1 for a GET request
+    const quantity = 1 // Default to 1
+
+    // Validasi apakah produk ada (opsional tapi bagus)
+    const product = await Product.find(productId)
+    if (!product) {
+      session.flash('error', 'Produk tidak ditemukan.')
+      return response.redirect().back()
+    }
 
     const cart = session.get('cart', []) || []
-    const existingItem = cart.find((item: any) => item.productId === Number(productId))
+    const existingItemIndex = cart.findIndex((item: any) => item.productId === Number(productId))
 
-    if (existingItem) {
-      existingItem.quantity += quantity
+    if (existingItemIndex > -1) {
+      // Jika item sudah ada, tambahkan quantity
+      cart[existingItemIndex].quantity += quantity
     } else {
+      // Jika item baru, tambahkan ke cart
       cart.push({ productId: Number(productId), quantity })
     }
 
@@ -52,4 +69,6 @@ export default class CartController {
     // Redirect back to the previous page
     return response.redirect().back()
   }
+
+  // Metode lain (update, destroy) bisa ditambahkan di sini
 }

@@ -35,10 +35,9 @@ server.use([
 router.use([
   () => import('@adonisjs/core/bodyparser_middleware'),
   () => import('@adonisjs/session/session_middleware'),
-  () => import('@adonisjs/shield/shield_middleware'),
-  // PERBAIKAN: Middleware autentikasi diaktifkan kembali.
-  // Ini adalah perbaikan krusial untuk masalah login dan sesi.
+  // PERBAIKAN BUG 2: Inisialisasi auth *setelah* session, sebelum shield
   () => import('@adonisjs/auth/initialize_auth_middleware'),
+  () => import('@adonisjs/shield/shield_middleware'),
 ])
 
 /**

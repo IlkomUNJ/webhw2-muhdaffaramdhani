@@ -7,20 +7,28 @@ export default class ProductController {
    * Get popular products for home page
    */
   public async getPopularProducts() {
-    return await Product.query().where('rating', '>=', 4).orderBy('orderCount', 'desc').limit(8)
+    // Ambil 10 produk, lalu acak dan ambil 8 untuk variasi
+    const products = await Product.query()
+      .where('rating', '>=', 4)
+      .orderBy('orderCount', 'desc')
+      .limit(10)
+    // Simple shuffle
+    products.sort(() => Math.random() - 0.5)
+    return products.slice(0, 8)
   }
 
   /**
    * Display a list of resource
    */
   public async index({ view, auth, request }: HttpContext) {
-    // PERBAIKAN: Mengubah nama variabel menjadi camelCase
     const { search, city, minPrice, maxPrice, sort } = request.qs()
     let userWishlist: number[] = []
 
-    // Ambil wishlist user jika sudah login
-    if (auth.isAuthenticated) {
-      const wishlistItems = await Wishlist.query().where('user_id', auth.user!.id)
+    // Cek auth.user sebelum akses properti
+    if (auth.isAuthenticated && auth.user) {
+      const wishlistItems = await Wishlist.query()
+        .where('user_id', auth.user.id)
+        .select('product_id') // Lebih efisien
       userWishlist = wishlistItems.map((item) => item.productId)
     }
 
@@ -28,9 +36,7 @@ export default class ProductController {
 
     if (search) query.where('name', 'like', `%${search}%`)
     if (city) query.where('city', city)
-    // PERBAIKAN: Menggunakan variabel camelCase
     if (minPrice) query.where('price', '>=', minPrice)
-    // PERBAIKAN: Menggunakan variabel camelCase
     if (maxPrice) query.where('price', '<=', maxPrice)
 
     if (sort && sort !== 'default') {
@@ -39,25 +45,44 @@ export default class ProductController {
         query.orderBy(column, direction as 'asc' | 'desc')
       }
     } else {
-      query.orderBy('id', 'asc')
+      query.orderBy('id', 'asc') // Default sort
     }
 
     const products = await query
-    const cities = await Product.query().distinct('city').orderBy('city', 'asc')
+    const citiesResult = await Product.query().distinct('city').orderBy('city', 'asc')
 
+    // Middleware 'initialize_auth_middleware' sudah membuat
+    // auth.isAuthenticated dan auth.user tersedia di view secara global.
+    // Tidak perlu mengirim 'isAuthenticated' lagi secara manual.
     return view.render('pages/products', {
       products,
-      cities: cities.map((c) => c.city),
-      userWishlist, // Kirim data wishlist ke view
+      cities: citiesResult.map((c) => c.city),
+      userWishlist, // Tetap kirim wishlist spesifik user ini
     })
   }
 
   /**
    * Display product details
    */
-  public async show({ params, view }: HttpContext) {
+  public async show({ params, view, auth }: HttpContext) {
+    let userWishlist: number[] = []
+    // Cek auth.user sebelum akses properti
+    if (auth.isAuthenticated && auth.user) {
+      const wishlistItems = await Wishlist.query()
+        .where('user_id', auth.user.id)
+        .select('product_id')
+      userWishlist = wishlistItems.map((item) => item.productId)
+    }
+
+    // findOrFail akan otomatis error 404 jika produk tidak ditemukan
     const product = await Product.findOrFail(params.id)
-    // PERBAIKAN: Menggunakan view product_detail yang baru
-    return view.render('pages/product_detail', { product })
+
+    // Middleware 'initialize_auth_middleware' sudah membuat
+    // auth.isAuthenticated dan auth.user tersedia di view secara global.
+    return view.render('pages/product_detail', {
+      product, // Kirim satu objek produk
+      userWishlist, // Tetap kirim wishlist spesifik user ini
+      // isAuthenticated: auth.isAuthenticated, // Hapus ini
+    })
   }
 }

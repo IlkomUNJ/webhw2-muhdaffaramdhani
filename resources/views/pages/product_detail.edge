@@ -1,96 +1,92 @@
-@component('layouts/app', { title: 'Produk - SweetBox' })
+@component('layouts/app', { title: product.name + ' - SweetBox' })
 @slot('main')
 
-<main class="pt-24 sm:pt-28">
-<section id="product-page" class="py-12">
-<div class="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-8">
-<aside class="w-full lg:w-1/4 lg:sticky top-28 self-start h-auto bg-white p-6 rounded-2xl shadow-lg border border-gray-200 filter-container-no-scroll">
-<form id="filter-form" method="GET" action="{{ route('products.index') }}">
-<div class="filter-group mb-6">
-<h3 class="text-lg font-bold mb-3 text-purple-700 border-b pb-2 border-purple-100">Cari</h3>
-<input type="text" name="search" value="{{ request.qs().search || '' }}" placeholder="Cari dessert..." class="w-full p-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition duration-150">
-</div>
+<main class="pt-24 sm:pt-32 pb-16">
+<section id="product-detail-page" class="py-12">
+<div class="container mx-auto px-4 sm:px-6 lg:px-8">
+{{-- Breadcrumb (Optional) --}}
+<nav class="text-sm mb-8" aria-label="Breadcrumb">
+<ol class="list-none p-0 inline-flex space-x-2">
+<li class="flex items-center">
+<a href="{{ route('home') }}" class="text-gray-500 hover:text-purple-600">Home</a>
+<i class="fas fa-chevron-right text-gray-400 mx-2 text-xs"></i>
+</li>
+<li class="flex items-center">
+<a href="{{ route('products.index') }}" class="text-gray-500 hover:text-purple-600">Produk</a>
+<i class="fas fa-chevron-right text-gray-400 mx-2 text-xs"></i>
+</li>
+<li class="flex items-center">
+<span class="text-gray-700 font-medium">{{ product.name }}</span>
+</li>
+</ol>
+</nav>
 
-<div class="filter-group mb-6">
-  <h3 class="text-lg font-bold mb-3 text-purple-700 border-b pb-2 border-purple-100">Urutkan</h3>
-  <select name="sort" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition duration-150" onchange="this.form.submit()">
-    <option value="default" {{ !request.qs().sort || request.qs().sort === 'default' ? 'selected' : '' }}>Default</option>
-    <option value="price-asc" {{ request.qs().sort === 'price-asc' ? 'selected' : '' }}>Harga Terendah</option>
-    <option value="price-desc" {{ request.qs().sort === 'price-desc' ? 'selected' : '' }}>Harga Tertinggi</option>
-    <option value="calories-asc" {{ request.qs().sort === 'calories-asc' ? 'selected' : '' }}>Kalori Terendah</option>
-    <option value="calories-desc" {{ request.qs().sort === 'calories-desc' ? 'selected' : '' }}>Kalori Tertinggi</option>
-    <option value="rating-desc" {{ request.qs().sort === 'rating-desc' ? 'selected' : '' }}>Bintang Tertinggi</option>
-  </select>
-</div>
+        {{-- PERBAIKAN BUG 1: Layout untuk menampilkan detail SATU produk --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-start">
+            {{-- Product Image --}}
+            <div class="relative rounded-2xl overflow-hidden shadow-lg border border-gray-200">
+                <img src="{{ product.imageUrl }}" alt="{{ product.name }}" class="w-full h-auto object-cover aspect-[4/3]">
+                {{-- Tombol Wishlist hanya tampil jika user login --}}
+                @if(isAuthenticated)
+                <button class="like-btn absolute top-4 right-4 bg-white/80 w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:text-red-500 transition-colors z-10 shadow" data-id="{{ product.id }}" aria-label="Save to wishlist">
+                    {{-- Cek apakah produk ini ada di userWishlist --}}
+                    @if(userWishlist && userWishlist.includes(product.id))
+                        <i class="fas fa-heart text-xl text-red-500"></i> {{-- Hati Penuh --}}
+                    @else
+                        <i class="far fa-heart text-xl"></i> {{-- Hati Kosong --}}
+                    @endif
+                </button>
+                @endif
+            </div>
 
-<div class="filter-group mb-6">
-  <h3 class="text-lg font-bold mb-3 text-purple-700 border-b pb-2 border-purple-100">Kota</h3>
-  <select name="city" class="city-select w-full p-2" onchange="this.form.submit()">
-    <option value="">Semua Kota</option>
-    @each(city in cities)
-      <option value="{{ city }}" {{ request.qs().city === city ? 'selected' : '' }}>{{ city }}</option>
-    @end
-  </select>
-</div>
+            {{-- Product Details --}}
+            <div class="product-info">
+                <h1 class="text-3xl lg:text-4xl font-bold font-display text-gray-900 mb-2">{{ product.name }}</h1>
+                <p class="text-lg text-gray-500 mb-4">{{ product.city }}</p>
 
-<div class="filter-group mb-6">
-  <h3 class="text-lg font-bold mb-3 text-purple-700 border-b pb-2 border-purple-100">Range Harga (Rp)</h3>
-  <div class="price-range space-y-3">
-    {{-- PERBAIKAN: Mengubah name dan value menjadi camelCase --}}
-    <input type="number" name="minPrice" value="{{ request.qs().minPrice || '' }}" placeholder="Harga Minimum" min="0" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition duration-150">
-    <input type="number" name="maxPrice" value="{{ request.qs().maxPrice || '' }}" placeholder="Harga Maksimum" min="0" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition duration-150">
-  </div>
-</div>
+                <div class="flex items-center mb-4 space-x-4">
+                    <div class="text-yellow-400 text-xl">
+                        {{-- Tampilkan bintang berdasarkan rating --}}
+                        @each(i in range(1, 6))
+                            @if(i <= product.rating)
+                                <i class="fas fa-star"></i>
+                            @else
+                                <i class="far fa-star"></i>
+                            @endif
+                        @end
+                        <span class="text-sm text-gray-500 ml-1">({{ product.rating }}/5)</span>
+                    </div>
+                     <span class="text-gray-400">|</span>
+                     <span class="text-sm text-gray-600"><i class="fas fa-fire-alt text-orange-500 mr-1"></i>~{{ product.calories }} Kalori</span>
+                </div>
 
-<button type="submit" class="w-full bg-purple-600 text-white font-bold py-2 rounded-lg mt-4 hover:bg-purple-700 transition-colors">Terapkan Filter</button>
-<a href="{{ route('products.index') }}" class="block text-center w-full text-gray-600 text-sm py-2 mt-2 hover:text-purple-600">Reset Filter</a>
+                <p class="text-2xl lg:text-3xl font-bold text-purple-600 mb-6">Rp {{ product.price.toLocaleString('id-ID') }}</p>
 
+                <div class="prose max-w-none text-gray-700 mb-8">
+                    <h3 class="text-lg font-semibold mb-2">Deskripsi Produk</h3>
+                    <p>{{ product.description }}</p>
+                </div>
 
-</form>
-</aside>
-<div class="w-full lg:w-3/4">
-<div class="text-center lg:text-left mb-8">
-<h2 class="text-3xl md:text-4xl font-bold text-gray-900 font-display">Pilihan Dessert Terbaik</h2>
-<p class="mt-2 text-lg text-gray-600">Temukan hidangan penutup favorit Anda dari berbagai kota di Indonesia.</p>
-</div>
-<div class="product-grid grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6" id="product-grid">
-@each(product in products)
-<div class="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col">
-<div class="relative">
-<button class="like-btn absolute top-3 right-3 bg-white/80 w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:text-red-500 transition-colors z-10" data-id="{{ product.id }}" aria-label="Save to wishlist">
-@if(userWishlist && userWishlist.includes(product.id))
-<i class="fas fa-heart text-xl text-red-500"></i>
-@else
-<i class="far fa-heart text-xl"></i>
-@endif
-</button>
-<a href="{{ route('products.show', { id: product.id }) }}">
-<img src="{{ product.imageUrl }}" alt="{{ product.name }}" loading="lazy" class="w-full h-48 object-cover">
-</a>
-</div>
-<div class="p-5 flex flex-col flex-grow">
-<h4 class="text-lg font-semibold text-gray-900 truncate"><a href="{{ route('products.show', { id: product.id }) }}">{{ product.name }}</a></h4>
-<p class="text-sm text-gray-500">{{ product.city }}</p>
-<p class="text-xs text-gray-500 mb-3 italic">~{{ product.calories }} Kalori</p>
-<div class="mt-auto flex justify-between items-center">
-<div>
-<p class="text-lg font-bold text-purple-600">Rp {{ product.price.toLocaleString('id-ID') }}</p>
-<div class="text-yellow-400 text-sm">{{'★'.repeat(product.rating)}}{{'☆'.repeat(5 - product.rating)}}</div>
-</div>
-<button class="add-to-cart-btn bg-purple-600 text-white w-10 h-10 rounded-full text-2xl font-bold flex items-center justify-center transition-transform hover:scale-110 hover:bg-purple-700" data-id="{{ product.id }}" aria-label="Add to cart">+</button>
-</div>
-</div>
-</div>
-@else
-<div class="sm:col-span-2 xl:col-span-3 text-center py-16">
-<h3 class="text-2xl font-semibold text-gray-800">Oops! Produk tidak ditemukan.</h3>
-<p class="text-gray-600 mt-2">Coba ubah kata kunci pencarian atau filter Anda.</p>
-</div>
-@end
-</div>
-</div>
+                {{-- Tombol Aksi: Tambah ke Keranjang --}}
+                <button class="add-to-cart-btn w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-full text-lg transition-transform transform hover:scale-105 flex items-center justify-center gap-2" data-id="{{ product.id }}">
+                    <i class="fas fa-shopping-cart"></i>
+                    Tambah ke Keranjang
+                </button>
+                {{-- Pesan login jika belum login --}}
+                @if(!isAuthenticated)
+                    <p class="text-center text-sm text-gray-500 mt-3">
+                        <a href="{{ route('auth.login') }}" class="text-purple-600 hover:underline">Login</a> untuk menambahkan ke keranjang atau wishlist.
+                    </p>
+                @endif
+
+            </div>
+        </div>
+
+        {{-- Section "Related Products" bisa ditambahkan di sini jika perlu --}}
+
 </div>
 </section>
 </main>
 @endslot
 @endcomponent
+

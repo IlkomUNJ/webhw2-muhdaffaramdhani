@@ -10,21 +10,18 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32' fill='none'><rect x='4' y='8' width='24' height='16' rx='4' fill='%23FFD1DC'/><path d='M4 8C4 5.79086 5.79086 4 8 4H24C26.2091 4 28 5.79086 28 8V10H4V8Z' fill='%23F8BBD0'/><rect x='14' y='4' width='4' height='24' fill='%23A7D9E3'/><rect x='4' y='14' width='24' height='4' fill='%23A7D9E3'/><path d='M16 12L19 9L16 6L13 9L16 12Z' fill='%23A7D9E3'/></svg>" type="image/svg+xml">
 
 {{-- Fonts --}}
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 
 {{-- Icons --}}
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
 {{-- Tailwind CSS from CDN --}}
-
 <script src="https://cdn.tailwindcss.com"></script>
 
-@if(route.name === 'products.index')
-
+{{-- Select2 CSS (jika di halaman produk) --}}
+@if(route.name === 'products.index' || route.name === 'products.show')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 @endif
 
@@ -43,8 +40,8 @@
 <a href="{{ route('about') }}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">About</a>
 </nav>
 <div class="flex items-center space-x-4">
-{{-- PERBAIKAN: Hanya tampilkan ikon admin jika user adalah seller --}}
-@if(auth.user && auth.user.role === 'seller')
+{{-- Ikon Admin hanya untuk Seller yang login --}}
+@if(auth.isAuthenticated && auth.user?.role === 'seller')
 <a href="{{ route('seller.dashboard') }}" class="text-gray-700 hover:text-red-500" aria-label="Admin Dashboard">
 <i class="fas fa-user-shield text-2xl"></i>
 </a>
@@ -52,23 +49,26 @@
 
             <a href="{{ route('cart.index') }}" class="cart-icon relative text-gray-700 hover:text-purple-600" aria-label="Shopping Cart">
                 <i class="fas fa-shopping-bag text-2xl"></i>
-                <span class="cart-badge absolute -top-2 -right-2 bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold" style="{{ session.get('cart', []).length > 0 ? '' : 'display: none;' }}">{{ session.get('cart', []).reduce((total, item) => total + item.quantity, 0) }}</span>
+                {{-- Badge keranjang akan diupdate oleh JS --}}
+                <span id="cart-badge" class="cart-badge absolute -top-2 -right-2 bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold" style="display: none;">0</span>
             </a>
-            
+
             <div class="hidden md:flex items-center space-x-4">
-                {{-- PERBAIKAN: Gunakan auth.isAuthenticated untuk memeriksa status login --}}
+                {{-- PERBAIKAN BUG 1: Gunakan auth.isAuthenticated untuk kondisional --}}
                 @if(auth.isAuthenticated)
-                  <span class="text-sm font-medium text-purple-600">Hai, {{ auth.user.username }}</span>
+                  {{-- Tampilkan info user jika login --}}
+                  <span class="text-sm font-medium text-purple-600">Hai, {{ auth.user?.username }}</span>
                   <form action="{{ route('auth.logout') }}" method="POST">
                     {{ csrfField() }}
                     <button type="submit" class="text-gray-700 hover:text-red-500 font-medium transition-colors">Logout</button>
                   </form>
                 @else
+                  {{-- Tampilkan Login/Register jika belum login --}}
                   <a href="{{ route('auth.login') }}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">Login</a>
                   <a href="{{ route('auth.register') }}" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-full transition-colors">Register</a>
                 @endif
             </div>
-            
+
             <button class="hamburger-menu md:hidden flex flex-col justify-around w-6 h-5 bg-transparent border-none cursor-pointer p-0 z-20" id="hamburger-menu" aria-label="Open menu">
                 <span class="block w-full h-0.5 bg-gray-800 rounded-full transition-all duration-300"></span>
                 <span class="block w-full h-0.5 bg-gray-800 rounded-full transition-all duration-300"></span>
@@ -77,25 +77,25 @@
         </div>
     </div>
 </div>
-
-
 </header>
 
-<nav class="mobile-nav fixed top-0 left-0 w-full h-full bg-white z-10 flex flex-col justify-center items-center transform translate-x-full transition-transform duration-300 md:hidden" id="mobile-nav">
+<nav class="mobile-nav fixed top-0 left-0 w-full h-full bg-white z-40 flex flex-col justify-center items-center transform translate-x-full transition-transform duration-300 md:hidden" id="mobile-nav">
 <ul class="text-center">
-<li class="my-4"><a href="{{ route('home') }}" class="text-3xl font-semibold text-gray-800">Home</a></li>
-<li class="my-4"><a href="{{ route('products.index') }}" class="text-3xl font-semibold text-gray-800">Product</a></li>
-<li class="my-4"><a href="{{ route('about') }}" class="text-3xl font-semibold text-gray-800">About</a></li>
-<li class="my-4"><a href="{{ route('cart.index') }}" class="text-3xl font-semibold text-gray-800">Shopping Cart</a></li>
+<li class="my-4"><a href="{{ route('home') }}" class="text-3xl font-semibold text-gray-800 mobile-nav-link">Home</a></li>
+<li class="my-4"><a href="{{ route('products.index') }}" class="text-3xl font-semibold text-gray-800 mobile-nav-link">Product</a></li>
+<li class="my-4"><a href="{{ route('about') }}" class="text-3xl font-semibold text-gray-800 mobile-nav-link">About</a></li>
+<li class="my-4"><a href="{{ route('cart.index') }}" class="text-3xl font-semibold text-gray-800 mobile-nav-link">Shopping Cart</a></li>
 
-    @if(auth.isAuthenticated && auth.user.role === 'seller')
-      <li class="my-4"><a href="{{ route('seller.dashboard') }}" class="text-3xl font-semibold text-red-500">Admin Dashboard</a></li>
+    {{-- Link Admin hanya untuk Seller yg login --}}
+    @if(auth.isAuthenticated && auth.user?.role === 'seller')
+      <li class="my-4"><a href="{{ route('seller.dashboard') }}" class="text-3xl font-semibold text-red-500 mobile-nav-link">Admin Dashboard</a></li>
     @endif
-    
+
     <div class="mt-8 pt-4 border-t border-gray-200">
-        {{-- PERBAIKAN: Gunakan auth.isAuthenticated untuk memeriksa status login --}}
+        {{-- PERBAIKAN BUG 1: Gunakan auth.isAuthenticated untuk kondisional --}}
         @if(auth.isAuthenticated)
-            <span class="text-xl font-medium text-purple-600 block mb-4">Hai, {{ auth.user.username }}</span>
+            {{-- Tampilkan info user jika login --}}
+            <span class="text-xl font-medium text-purple-600 block mb-4">Hai, {{ auth.user?.username }}</span>
             <li class="my-4">
               <form action="{{ route('auth.logout') }}" method="POST">
                 {{ csrfField() }}
@@ -103,13 +103,12 @@
               </form>
             </li>
         @else
-            <li class="my-4"><a href="{{ route('auth.login') }}" class="text-3xl font-semibold text-gray-800">Login</a></li>
-            <li class="my-4"><a href="{{ route('auth.register') }}" class="text-3xl font-semibold text-purple-600">Register</a></li>
+            {{-- Tampilkan Login/Register jika belum login --}}
+            <li class="my-4"><a href="{{ route('auth.login') }}" class="text-3xl font-semibold text-gray-800 mobile-nav-link">Login</a></li>
+            <li class="my-4"><a href="{{ route('auth.register') }}" class="text-3xl font-semibold text-purple-600 mobile-nav-link">Register</a></li>
         @endif
     </div>
 </ul>
-
-
 </nav>
 
 <main class="flex-grow">
@@ -173,28 +172,36 @@ Membawa kelezatan dessert khas nusantara langsung ke depan pintu Anda. Kualitas 
 <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500 text-sm">
   <p>&copy; 2025 SweetBox. Semua Hak Cipta Dilindungi.</p>
 </div>
-
-
 </div>
 </footer>
 
-<div id="flash-messages"
+{{-- Container untuk data flash message --}}
+<div id="flash-messages" style="display: none;"
 data-success="{{ flashMessages.get('success', '') }}"
 data-error="{{ flashMessages.get('error', '') }}"
 data-info="{{ flashMessages.get('info', '') }}">
 </div>
 
-<div id="notification" class="notification fixed bottom-5 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-lg z-50 opacity-0 transition-all duration-300"></div>
+{{-- Elemen notifikasi --}}
+<div id="notification" class="notification fixed bottom-5 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-lg z-[100] opacity-0 transition-all duration-300 pointer-events-none"></div>
 
-@if(route.name === 'products.index' || route.name === 'cart.index')
+{{-- PERBAIKAN: Selalu sertakan jQuery jika diperlukan --}}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-@endif
-@if(route.name === 'products.index')
+
+{{-- Select2 JS (jika di halaman produk) --}}
+@if(route.name === 'products.index' || route.name === 'products.show')
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 @endif
+{{-- html2canvas (jika di halaman cart) --}}
 @if(route.name === 'cart.index')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 @endif
+
+{{-- Hidden input to pass authentication status to JS --}}
+<input type="hidden" id="auth-status" value="{{ auth.isAuthenticated ? 'true' : 'false' }}">
+{{-- Hidden input to pass cart data to JS --}}
+<input type="hidden" id="initial-cart-data" value="{{ JSON.stringify(session.get('cart', [])) }}">
+
 
 </body>
 </html>

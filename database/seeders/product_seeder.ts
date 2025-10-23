@@ -1,36 +1,58 @@
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
 import User from '#models/user'
 import Product from '#models/product'
+// Import Wishlist tidak lagi diperlukan di sini
+import db from '@adonisjs/lucid/services/db' // Import db service
 
 export default class DatabaseSeeder extends BaseSeeder {
-  logger: any
   public async run() {
-    // 1. Buat Pengguna (Users) terlebih dahulu
+    // Hapus data lama sebelum seeding (hati-hati jika dijalankan di produksi)
+    // Urutan penting: hapus data yang memiliki foreign key terlebih dahulu
+    try {
+      // Hapus data wishlist jika tabelnya ada
+      await db.rawQuery('DELETE FROM wishlists')
+    } catch (error) {
+      // Abaikan error jika tabel belum ada atau kosong
+      console.warn(
+        'Could not delete from wishlists (might be empty or not exist yet):',
+        error.message
+      )
+    }
+    await db.rawQuery('DELETE FROM products') // Hapus produk
+    await db.rawQuery('DELETE FROM users') // Hapus user
+
+    // Catatan: Untuk database seperti PostgreSQL, Anda mungkin perlu mereset sequence ID
+    // await db.rawQuery('ALTER SEQUENCE users_id_seq RESTART WITH 1')
+    // await db.rawQuery('ALTER SEQUENCE products_id_seq RESTART WITH 1')
+    // await db.rawQuery('ALTER SEQUENCE wishlists_id_seq RESTART WITH 1')
+    // Untuk SQLite, biasanya menghapus data saja sudah cukup.
+
+    // 1. Buat Pengguna (Users) baru
     const users = await User.createMany([
       {
         username: 'seller',
-        password: '111',
+        password: '111', // Akan di-hash otomatis oleh model User
         role: 'seller',
         email: 'seller@sweetbox.com',
       },
       {
         username: 'buyer',
-        password: '999',
+        password: '999', // Akan di-hash otomatis oleh model User
         role: 'buyer',
         email: 'buyer@sweetbox.com',
       },
     ])
 
-    // Temukan pengguna penjual yang baru saja kita buat
+    // Temukan ID seller yang baru dibuat
     const seller = users.find((u) => u.role === 'seller')
 
-    // Pastikan penjual ada sebelum membuat produk
+    // Pastikan seller ditemukan sebelum melanjutkan
     if (!seller) {
-      this.logger.error('Seeder failed: Could not find seller to assign products to.')
-      return
+      console.error('Seeder failed: Could not find seller user after creation.')
+      return // Hentikan seeder jika seller tidak ada
     }
 
-    // 2. Buat Produk dan kaitkan dengan ID penjual
+    // 2. Buat Produk (Products) baru dan kaitkan dengan sellerId
     await Product.createMany([
       {
         name: 'Bolu Meranti',
@@ -41,7 +63,7 @@ export default class DatabaseSeeder extends BaseSeeder {
         description: 'Bolu gulung lembut dengan isian melimpah khas Medan yang legendaris.',
         imageUrl: '/images/bolu-meranti.jpg',
         orderCount: 250,
-        sellerId: seller.id,
+        sellerId: seller.id, // Gunakan ID seller yang baru dibuat
       },
       {
         name: 'Lapis Legit',
@@ -308,5 +330,7 @@ export default class DatabaseSeeder extends BaseSeeder {
         sellerId: seller.id,
       },
     ])
+
+    console.log('Database seeded successfully!') // Pesan sukses
   }
 }
