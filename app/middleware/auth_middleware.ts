@@ -2,8 +2,16 @@ import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
 import type { Authenticators } from '@adonisjs/auth/types'
 
+/**
+ * Auth middleware is used to verify user login status. It redirects
+ * unauthorized users to the login page.
+ */
 export default class AuthMiddleware {
-  redirectTo = '/register'
+  /**
+   * The URL to redirect to, when authentication fails
+   * PERBAIKAN: Mengarahkan ke halaman login, bukan register.
+   */
+  redirectTo = '/login'
 
   async handle(
     ctx: HttpContext,
@@ -12,16 +20,19 @@ export default class AuthMiddleware {
       guards?: (keyof Authenticators)[]
     } = {}
   ) {
-    if (!(await ctx.auth.check())) {
-      // Store the intended URL before redirecting
-      ctx.session.put('auth_redirect', ctx.request.url())
-      ctx.session.flash('info', 'Anda harus membuat akun atau login terlebih dahulu.')
+    /**
+     * Store the URL the user was trying to access so that we can redirect them
+     * back to that URL after login.
+     */
+    if (!ctx.auth.isAuthenticated) {
+      // PERBAIKAN: Menggunakan 'intended_url' agar konsisten dengan AuthController
+      ctx.session.put('intended_url', ctx.request.url())
+      ctx.session.flash('info', 'Anda harus login terlebih dahulu untuk mengakses halaman ini.')
     }
 
     await ctx.auth.authenticateUsing(options.guards, {
       loginRoute: this.redirectTo,
     })
-
     return next()
   }
 }

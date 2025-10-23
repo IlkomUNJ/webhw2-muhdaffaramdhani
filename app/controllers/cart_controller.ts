@@ -6,21 +6,26 @@ export default class CartController {
    * Display cart contents
    */
   public async index({ session, view }: HttpContext) {
-    const cart = session.get('cart', [])
-    if (!cart || cart.length === 0) {
-      return view.render('pages/cart', { cartItems: [] })
+    const cart = session.get('cart', []) || []
+    let cartItems: any[] = []
+
+    if (cart.length > 0) {
+      const productIds = cart.map((item: { productId: number }) => item.productId)
+      const products = await Product.query().whereIn('id', productIds)
+
+      cartItems = cart
+        .map((item: { productId: number; quantity: number }) => {
+          const product = products.find((p) => p.id === item.productId)
+          if (product) {
+            return {
+              ...product.toJSON(),
+              quantity: item.quantity,
+            }
+          }
+          return null
+        })
+        .filter((item: any) => item !== null)
     }
-
-    const productIds = cart.map((item: any) => item.productId)
-    const products = await Product.query().whereIn('id', productIds)
-
-    const cartItems = cart.map((item: any) => {
-      const product = products.find((p) => p.id === item.productId)
-      return {
-        ...product?.toJSON(),
-        quantity: item.quantity,
-      }
-    })
 
     return view.render('pages/cart', { cartItems })
   }
@@ -46,29 +51,5 @@ export default class CartController {
 
     // Redirect back to the previous page
     return response.redirect().back()
-  }
-
-  /**
-   * Remove item from cart
-   */
-  public async removeFromCart({ params, session, response }: HttpContext) {
-    const productId = params.productId
-    let cart = session.get('cart', []) || []
-
-    cart = cart.filter((item: any) => item.productId !== Number(productId))
-
-    session.put('cart', cart)
-    return response.redirect().back()
-  }
-
-  /**
-   * Checkout cart items
-   */
-  public async checkout({ session, response }: HttpContext) {
-    // Clear cart after successful checkout
-    await session.forget('cart')
-
-    session.flash('success', 'Order placed successfully')
-    return response.redirect().toRoute('buyer.dashboard')
   }
 }

@@ -36,7 +36,8 @@ router.use([
   () => import('@adonisjs/core/bodyparser_middleware'),
   () => import('@adonisjs/session/session_middleware'),
   () => import('@adonisjs/shield/shield_middleware'),
-  // AKTIFKAN KEMBALI! Ini penting untuk autentikasi.
+  // PERBAIKAN: Middleware autentikasi diaktifkan kembali.
+  // Ini adalah perbaikan krusial untuk masalah login dan sesi.
   () => import('@adonisjs/auth/initialize_auth_middleware'),
 ])
 
@@ -44,7 +45,6 @@ router.use([
  * Named middleware collection must be explicitly assigned to
  * the routes or the routes group.
  */
-// AKTIFKAN KEMBALI! Ini digunakan untuk melindungi rute.
 export const middleware = router.named({
   guest: () => import('#middleware/guest_middleware'),
   auth: () => import('#middleware/auth_middleware'),

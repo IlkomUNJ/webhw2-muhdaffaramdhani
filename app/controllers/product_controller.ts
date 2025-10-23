@@ -1,6 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Product from '#models/product'
-import { productValidator } from '#validators/product'
+import Wishlist from '#models/wishlist'
 
 export default class ProductController {
   /**
@@ -13,34 +13,30 @@ export default class ProductController {
   /**
    * Display a list of resource
    */
-  public async index(ctx: HttpContext) {
-    const { search, city, minPrice, maxPrice, rating, sort } = ctx.request.qs()
+  public async index({ view, auth, request }: HttpContext) {
+    // PERBAIKAN: Mengubah nama variabel menjadi camelCase
+    const { search, city, minPrice, maxPrice, sort } = request.qs()
+    let userWishlist: number[] = []
 
-    // Mulai query builder
+    // Ambil wishlist user jika sudah login
+    if (auth.isAuthenticated) {
+      const wishlistItems = await Wishlist.query().where('user_id', auth.user!.id)
+      userWishlist = wishlistItems.map((item) => item.productId)
+    }
+
     const query = Product.query()
 
-    // Terapkan filter
-    if (search) {
-      query.where('name', 'like', `%${search}%`)
-    }
-    if (city) {
-      query.where('city', city)
-    }
-    if (minPrice) {
-      query.where('price', '>=', minPrice)
-    }
-    if (maxPrice) {
-      query.where('price', '<=', maxPrice)
-    }
-    if (rating) {
-      query.where('rating', '>=', rating)
-    }
+    if (search) query.where('name', 'like', `%${search}%`)
+    if (city) query.where('city', city)
+    // PERBAIKAN: Menggunakan variabel camelCase
+    if (minPrice) query.where('price', '>=', minPrice)
+    // PERBAIKAN: Menggunakan variabel camelCase
+    if (maxPrice) query.where('price', '<=', maxPrice)
 
-    // Terapkan sorting
-    if (sort) {
+    if (sort && sort !== 'default') {
       const [column, direction] = sort.split('-')
       if (['price', 'calories', 'rating'].includes(column) && ['asc', 'desc'].includes(direction)) {
-        query.orderBy(column, direction)
+        query.orderBy(column, direction as 'asc' | 'desc')
       }
     } else {
       query.orderBy('id', 'asc')
@@ -49,65 +45,19 @@ export default class ProductController {
     const products = await query
     const cities = await Product.query().distinct('city').orderBy('city', 'asc')
 
-    return ctx.view.render('pages/products', { products, cities: cities.map((c) => c.city) })
+    return view.render('pages/products', {
+      products,
+      cities: cities.map((c) => c.city),
+      userWishlist, // Kirim data wishlist ke view
+    })
   }
 
   /**
    * Display product details
    */
-  public async show(ctx: HttpContext) {
-    const product = await Product.findOrFail(ctx.params.id)
-    return ctx.view.render('pages/products/show', { product })
-  }
-
-  /**
-   * Display seller's products
-   */
-  public async sellerProducts(ctx: HttpContext) {
-    const products = await Product.query().where('sellerId', ctx.auth.user!.id)
-    return ctx.view.render('pages/seller/products', { products })
-  }
-
-  /**
-   * Display form to create a new product
-   */
-  public async create(ctx: HttpContext) {
-    return ctx.view.render('pages/seller/products/create')
-  }
-
-  /**
-   * Store a new product
-   */
-  public async store(ctx: HttpContext) {
-    const data = await ctx.request.validateUsing(productValidator)
-    await Product.create({ ...data, sellerId: ctx.auth.user!.id })
-    return ctx.response.redirect().toRoute('seller.products')
-  }
-
-  /**
-   * Display form to edit a product
-   */
-  public async edit(ctx: HttpContext) {
-    const product = await Product.findOrFail(ctx.params.id)
-    return ctx.view.render('pages/seller/products/edit', { product })
-  }
-
-  /**
-   * Update a product
-   */
-  public async update(ctx: HttpContext) {
-    const product = await Product.findOrFail(ctx.params.id)
-    const data = await ctx.request.validateUsing(productValidator)
-    await product.merge(data).save()
-    return ctx.response.redirect().toRoute('seller.products')
-  }
-
-  /**
-   * Delete a product
-   */
-  public async destroy(ctx: HttpContext) {
-    const product = await Product.findOrFail(ctx.params.id)
-    await product.delete()
-    return ctx.response.redirect().toRoute('seller.products')
+  public async show({ params, view }: HttpContext) {
+    const product = await Product.findOrFail(params.id)
+    // PERBAIKAN: Menggunakan view product_detail yang baru
+    return view.render('pages/product_detail', { product })
   }
 }

@@ -1,6 +1,8 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, beforeSave } from '@adonisjs/lucid/orm'
+import { BaseModel, column, beforeSave, hasMany } from '@adonisjs/lucid/orm'
+import type { HasMany } from '@adonisjs/lucid/types/relations'
 import hash from '@adonisjs/core/services/hash'
+import Wishlist from './wishlist.js'
 
 export default class User extends BaseModel {
   @beforeSave()
@@ -9,6 +11,7 @@ export default class User extends BaseModel {
       user.password = await hash.make(user.password)
     }
   }
+
   @column({ isPrimary: true })
   declare id: number
 
@@ -29,6 +32,10 @@ export default class User extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
+
+  // PERBAIKAN: Menambahkan relasi ke Wishlist
+  @hasMany(() => Wishlist)
+  declare wishlists: HasMany<typeof Wishlist>
 
   /**
    * Verifies the user's password
