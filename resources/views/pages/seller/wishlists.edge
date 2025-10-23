@@ -1,0 +1,43 @@
+@component('layouts/app', { title: 'Laporan Wishlist - SweetBox' })
+@slot('main')
+<main class="container mx-auto px-4 py-12 pt-32 sm:pt-40">
+  <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
+    <h1 class="text-3xl font-bold font-display text-gray-900 mb-6">Laporan Wishlist Pembeli</h1>
+    
+    @if(products.length === 0)
+      <p class="text-gray-600">Saat ini, belum ada pembeli yang menambahkan produk Anda ke wishlist mereka.</p>
+    @else
+      <div class="space-y-8">
+        {{-- Loop setiap produk Anda yang di-wishlist --}}
+        @each(product in products)
+          <div class="border-b border-gray-200 pb-6">
+            <h2 class="text-2xl font-semibold text-purple-700 font-display">{{ product.name }}</h2>
+            <p class="text-sm text-gray-500 mb-4">
+              Total di-wishlist oleh: <span class="font-bold text-gray-700">{{ product.wishlists.length }} pembeli</span>
+            </p>
+            
+            <h3 class="text-md font-semibold text-gray-800 mb-2">Daftar Pembeli:</h3>
+            <ul class="list-disc list-inside space-y-1 pl-4">
+              {{-- Loop setiap user yang wishlist produk ini --}}
+              @each(wishlist in product.wishlists)
+                {{-- Pastikan data user ada --}}
+                @if(wishlist.user)
+                  <li class="text-gray-700">
+                    {{ wishlist.user.username }}
+                  </li>
+                @endif
+              @end
+            </ul>
+          </div>
+        @end
+      </div>
+    @end
+
+    <a href="{{ route('seller.dashboard') }}" class="mt-8 inline-block text-purple-600 hover:underline font-medium">
+      &larr; Kembali ke Dashboard
+    </a>
+  </div>
+</main>
+@endslot
+@endcomponent
+

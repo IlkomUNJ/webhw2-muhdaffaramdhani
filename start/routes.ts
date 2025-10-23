@@ -46,6 +46,7 @@ router
     router
       .group(() => {
         router.get('/dashboard', [DashboardController, 'sellerDashboard']).as('seller.dashboard')
+        router.get('/wishlists', [DashboardController, 'showWishlists']).as('seller.wishlists')
       })
       .prefix('/seller')
   })

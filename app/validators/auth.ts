@@ -17,7 +17,7 @@ export const registerValidator = vine.compile(
     username: vine.string().trim().minLength(3),
     email: vine.string().trim().email().optional(),
     password: vine.string().minLength(8).confirmed(),
-    role: vine.enum(['buyer', 'seller']),
+    // Hapus validasi 'role' dari sini
   })
 )
 

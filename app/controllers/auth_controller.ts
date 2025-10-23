@@ -8,18 +8,23 @@ export default class AuthController {
   }
 
   public async register({ request, response, auth, session }: HttpContext) {
-    const payload = await registerValidator.validate(await request.all())
-    const user = await User.create(payload)
+    // Validasi hanya field yang diperlukan (tanpa role)
+    const { username, email, password } = await request.validateUsing(registerValidator)
+
+    // Buat pengguna baru dengan role 'buyer' secara hardcode
+    const user = await User.create({
+      username,
+      email,
+      password,
+      role: 'buyer', // Selalu daftarkan sebagai 'buyer'
+    })
+
     await auth.use('web').login(user)
 
     session.flash('success', `Akun berhasil dibuat! Selamat datang, ${user.username}!`)
 
-    // Redirect based on role
-    if (user.role === 'seller') {
-      return response.redirect().toRoute('seller.dashboard')
-    }
-
-    // For buyers, check for intended URL after registration
+    // Langsung arahkan ke dashboard buyer
+    // (Seller akan login melalui rute yang sama tetapi harus sudah ada di database)
     const intendedUrl = session.get('intended_url')
     if (intendedUrl) {
       session.forget('intended_url')
